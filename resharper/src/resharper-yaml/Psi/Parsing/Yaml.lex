@@ -89,8 +89,12 @@ NS_PLAIN_FIRST=({NS_CHAR_MINUS_C_INDICATOR}|(("?"|":"|"-"){NS_PLAIN_SAFE}))
 NB_NS_PLAIN_IN_LINE=({OPTIONAL_WHITESPACE}{NS_PLAIN_CHAR})*
 NS_PLAIN_ONE_LINE={NS_PLAIN_FIRST}{NB_NS_PLAIN_IN_LINE}
 
+NS_ANCHOR_CHAR=({NS_CHAR_MINUS_C_FLOW_INDICATOR})
+NS_ANCHOR_NAME={NS_ANCHOR_CHAR}+
+
 C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 
+%state ANCHOR_ALIAS
 %state SHORTHAND_TAG
 
 %%
@@ -98,6 +102,8 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     {WHITESPACE}          { return YamlTokenType.WHITESPACE; }
 <YYINITIAL>     {NEW_LINE}            { return YamlTokenType.NEW_LINE; }
 
+<YYINITIAL>     "&"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
+<YYINITIAL>     "*"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
 <YYINITIAL>     "!"                   { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
 <YYINITIAL>     ":"                   { return YamlTokenType.COLON; }
 <YYINITIAL>     ","                   { return YamlTokenType.COMMA; }
@@ -112,6 +118,10 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     {C_NB_COMMENT_TEXT}   { return YamlTokenType.COMMENT; }
 <YYINITIAL>     {NS_PLAIN_ONE_LINE}   { return YamlTokenType.NS_PLAIN; }
 
+<ANCHOR_ALIAS>  {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
+<ANCHOR_ALIAS>  {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
+<ANCHOR_ALIAS>  {NS_ANCHOR_NAME}      { yybegin(YYINITIAL); return YamlTokenType.NS_ANCHOR_NAME; }
+
 <SHORTHAND_TAG> {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
 <SHORTHAND_TAG> {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
 <SHORTHAND_TAG> "!"                   { return YamlTokenType.BANG; }
@@ -119,5 +129,5 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <SHORTHAND_TAG> ">"                   { return YamlTokenType.GT; }
 <SHORTHAND_TAG> ({NS_TAG_CHAR})+      { yybegin(YYINITIAL); return YamlTokenType.IDENTIFIER; }
 
-<YYINITIAL,SHORTHAND_TAG>
+<YYINITIAL,ANCHOR_ALIAS,SHORTHAND_TAG>
                 .                     { return YamlTokenType.BAD_CHARACTER; }

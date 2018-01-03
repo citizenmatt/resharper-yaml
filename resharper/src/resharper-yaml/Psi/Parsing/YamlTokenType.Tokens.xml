@@ -22,6 +22,8 @@
   <TokenTypeClass>YamlTokenType</TokenTypeClass>
 
   <Tokens NodeType="FixedTokenNodeType">
+    <Token name="AMP" representation="&amp;" />
+    <Token name="ASTERISK" representation="*" />
     <Token name="BANG" representation="!" />
     <Token name="COLON" representation=":" />
     <Token name="COMMA" representation="," />
