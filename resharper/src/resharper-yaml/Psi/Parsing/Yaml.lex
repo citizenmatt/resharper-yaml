@@ -98,13 +98,15 @@ NS_ANCHOR_NAME={NS_ANCHOR_CHAR}+
 C_QUOTED_QUOTE=({APOS_CHAR}{APOS_CHAR})
 NB_SINGLE_CHAR=({C_QUOTED_QUOTE}|{NB_JSON_MINUS_SINGLE_QUOTE})
 NB_SINGLE_ONE_LINE={NB_SINGLE_CHAR}*
-NB_SINGLE_TEXT={NB_SINGLE_ONE_LINE}
-C_SINGLE_QUOTED={APOS_CHAR}{NB_SINGLE_TEXT}{APOS_CHAR}
+NB_SINGLE_MULTI_LINE=(C_QUOTED_QUOTE}|{NB_JSON_MINUS_SINGLE_QUOTE}|{NEW_LINE})*
+C_SINGLE_QUOTED_key={APOS_CHAR}{NB_SINGLE_ONE_LINE}{APOS_CHAR}
+C_SINGLE_QUOTED_flow={APOS_CHAR}{NB_SINGLE_MULTI_LINE}{APOS_CHAR}
 
 NB_DOUBLE_CHAR=({NB_JSON_MINUS_DOUBLE_QUOTE}|{BACKSLASH_CHAR}{QUOTE_CHAR})
 NB_DOUBLE_ONE_LINE={NB_DOUBLE_CHAR}*
-NB_DOUBLE_TEXT={NB_DOUBLE_ONE_LINE}
-C_DOUBLE_QUOTED={QUOTE_CHAR}{NB_DOUBLE_TEXT}{QUOTE_CHAR}
+NB_DOUBLE_MULTI_LINE=({NB_JSON_MINUS_DOUBLE_QUOTE}|{BACKSLASH_CHAR}{QUOTE_CHAR}|{NEW_LINE})*
+C_DOUBLE_QUOTED_key={QUOTE_CHAR}{NB_DOUBLE_ONE_LINE}{QUOTE_CHAR}
+C_DOUBLE_QUOTED_flow={QUOTE_CHAR}{NB_DOUBLE_MULTI_LINE}{QUOTE_CHAR}
 
 C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 
@@ -115,63 +117,65 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 
 %%
 
-<YYINITIAL>     {WHITESPACE}          { return YamlTokenType.WHITESPACE; }
-<YYINITIAL>     {NEW_LINE}            { return YamlTokenType.NEW_LINE; }
+<YYINITIAL>     {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
+<YYINITIAL>     {NEW_LINE}              { return YamlTokenType.NEW_LINE; }
 
-<YYINITIAL>     ^"%"                  { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
-<YYINITIAL>     "&"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
-<YYINITIAL>     "*"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
-<YYINITIAL>     "!"                   { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
-<YYINITIAL>     "!<"                  { yybegin(VERBATIM_TAG); return YamlTokenType.BANG_LT; }
-<YYINITIAL>     ":"                   { return YamlTokenType.COLON; }
-<YYINITIAL>     ","                   { return YamlTokenType.COMMA; }
-<YYINITIAL>     "-"                   { return YamlTokenType.MINUS; }
-<YYINITIAL>     "<"                   { return YamlTokenType.LT; }
-<YYINITIAL>     ">"                   { return YamlTokenType.GT; }
-<YYINITIAL>     "{"                   { return YamlTokenType.LBRACE; }
-<YYINITIAL>     "}"                   { return YamlTokenType.RBRACE; }
-<YYINITIAL>     "["                   { return YamlTokenType.LBRACK; }
-<YYINITIAL>     "]"                   { return YamlTokenType.RBRACK; }
-<YYINITIAL>     "|"                   { return YamlTokenType.PIPE; }
-<YYINITIAL>     "?"                   { return YamlTokenType.QUESTION; }
+<YYINITIAL>     ^"%"                    { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
+<YYINITIAL>     "&"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
+<YYINITIAL>     "*"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
+<YYINITIAL>     "!"                     { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
+<YYINITIAL>     "!<"                    { yybegin(VERBATIM_TAG); return YamlTokenType.BANG_LT; }
+<YYINITIAL>     ":"                     { return YamlTokenType.COLON; }
+<YYINITIAL>     ","                     { return YamlTokenType.COMMA; }
+<YYINITIAL>     "-"                     { return YamlTokenType.MINUS; }
+<YYINITIAL>     "<"                     { return YamlTokenType.LT; }
+<YYINITIAL>     ">"                     { return YamlTokenType.GT; }
+<YYINITIAL>     "{"                     { return YamlTokenType.LBRACE; }
+<YYINITIAL>     "}"                     { return YamlTokenType.RBRACE; }
+<YYINITIAL>     "["                     { return YamlTokenType.LBRACK; }
+<YYINITIAL>     "]"                     { return YamlTokenType.RBRACK; }
+<YYINITIAL>     "|"                     { return YamlTokenType.PIPE; }
+<YYINITIAL>     "?"                     { return YamlTokenType.QUESTION; }
 
-<YYINITIAL>     ^"---"                { return YamlTokenType.DIRECTIVES_END; }
-<YYINITIAL>     ^"..."                { return YamlTokenType.DOCUMENT_END; }
+<YYINITIAL>     ^"---"                  { return YamlTokenType.DIRECTIVES_END; }
+<YYINITIAL>     ^"..."                  { return YamlTokenType.DOCUMENT_END; }
 
 <YYINITIAL,DIRECTIVE>
-                {C_NB_COMMENT_TEXT}   { return YamlTokenType.COMMENT; }
+                {C_NB_COMMENT_TEXT}     { return YamlTokenType.COMMENT; }
 
-<YYINITIAL>     {C_SINGLE_QUOTED}     { return YamlTokenType.C_SINGLE_QUOTED; }
-<YYINITIAL>     {C_DOUBLE_QUOTED}     { return YamlTokenType.C_DOUBLE_QUOTED; }
-<YYINITIAL>     {NS_PLAIN_ONE_LINE}   { return YamlTokenType.NS_PLAIN; }
-
-
-<DIRECTIVE>     {WHITESPACE}          { return YamlTokenType.WHITESPACE; }
-<DIRECTIVE>     {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
-<DIRECTIVE>     "!"                   { return YamlTokenType.BANG; }
-<DIRECTIVE>     {NS_CHAR}+            { return YamlTokenType.NS_CHARS; }
-<DIRECTIVE>     {NS_WORD_CHAR}+       { return YamlTokenType.NS_WORD_CHARS; }
-<DIRECTIVE>     {NS_URI_CHAR}+        { return YamlTokenType.NS_URI_CHARS; }
+<YYINITIAL>     {C_SINGLE_QUOTED_key}   { return YamlTokenType.C_SINGLE_QUOTED; }
+<YYINITIAL>     {C_SINGLE_QUOTED_flow}  { return YamlTokenType.C_SINGLE_QUOTED; }
+<YYINITIAL>     {C_DOUBLE_QUOTED_key}   { return YamlTokenType.C_DOUBLE_QUOTED; }
+<YYINITIAL>     {C_DOUBLE_QUOTED_flow}  { return YamlTokenType.C_DOUBLE_QUOTED; }
+<YYINITIAL>     {NS_PLAIN_ONE_LINE}     { return YamlTokenType.NS_PLAIN; }
 
 
-<ANCHOR_ALIAS>  {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
-<ANCHOR_ALIAS>  {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
-<ANCHOR_ALIAS>  {NS_ANCHOR_NAME}      { yybegin(YYINITIAL); return YamlTokenType.NS_ANCHOR_NAME; }
+<DIRECTIVE>     {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
+<DIRECTIVE>     {NEW_LINE}              { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
+<DIRECTIVE>     "!"                     { return YamlTokenType.BANG; }
+<DIRECTIVE>     {NS_CHAR}+              { return YamlTokenType.NS_CHARS; }
+<DIRECTIVE>     {NS_WORD_CHAR}+         { return YamlTokenType.NS_WORD_CHARS; }
+<DIRECTIVE>     {NS_URI_CHAR}+          { return YamlTokenType.NS_URI_CHARS; }
+
+
+<ANCHOR_ALIAS>  {WHITESPACE}            { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
+<ANCHOR_ALIAS>  {NEW_LINE}              { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
+<ANCHOR_ALIAS>  {NS_ANCHOR_NAME}        { yybegin(YYINITIAL); return YamlTokenType.NS_ANCHOR_NAME; }
 
 
 <SHORTHAND_TAG,VERBATIM_TAG>
-                {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
+                {WHITESPACE}            { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
 <SHORTHAND_TAG,VERBATIM_TAG>
-                {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
+                {NEW_LINE}              { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
 
 
-<SHORTHAND_TAG> "!"                   { return YamlTokenType.BANG; }
-<SHORTHAND_TAG> {NS_TAG_CHAR}+        { yybegin(YYINITIAL); return YamlTokenType.NS_TAG_CHARS; }
+<SHORTHAND_TAG> "!"                     { return YamlTokenType.BANG; }
+<SHORTHAND_TAG> {NS_TAG_CHAR}+          { yybegin(YYINITIAL); return YamlTokenType.NS_TAG_CHARS; }
 
 
-<VERBATIM_TAG>  {NS_URI_CHAR}+        { yybegin(YYINITIAL); return YamlTokenType.NS_URI_CHARS; }
-<VERBATIM_TAG>  ">"                   { yybegin(YYINITIAL); return YamlTokenType.GT; }
+<VERBATIM_TAG>  {NS_URI_CHAR}+          { yybegin(YYINITIAL); return YamlTokenType.NS_URI_CHARS; }
+<VERBATIM_TAG>  ">"                     { yybegin(YYINITIAL); return YamlTokenType.GT; }
 
 
 <YYINITIAL,DIRECTIVE,ANCHOR_ALIAS,SHORTHAND_TAG,VERBATIM_TAG>
-                .                     { return YamlTokenType.BAD_CHARACTER; }
+                .                       { return YamlTokenType.BAD_CHARACTER; }
