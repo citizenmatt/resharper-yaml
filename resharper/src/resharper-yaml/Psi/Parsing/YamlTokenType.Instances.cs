@@ -11,6 +11,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     public static readonly TokenNodeType NEW_LINE = new NewLineNodeType(LAST_GENERATED_TOKEN_TYPE_INDEX + 12);
     public static readonly TokenNodeType WHITESPACE = new WhitespaceNodeType(LAST_GENERATED_TOKEN_TYPE_INDEX + 13);
 
+    public static readonly TokenNodeType COMMENT = new CommentTokenNodeType(LAST_GENERATED_TOKEN_TYPE_INDEX + 14);
+
     // TODO: naming...
     public static readonly TokenNodeType IDENTIFIER = new GenericTokenNodeType("IDENTIFIER", LAST_GENERATED_TOKEN_TYPE_INDEX + 20, "IDENTIFIER");
     public static readonly TokenNodeType NS_PLAIN = new GenericTokenNodeType("NS_PLAIN", LAST_GENERATED_TOKEN_TYPE_INDEX + 21, "NS_PLAIN");

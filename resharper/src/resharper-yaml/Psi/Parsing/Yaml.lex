@@ -89,6 +89,7 @@ NS_PLAIN_FIRST=({NS_CHAR_MINUS_C_INDICATOR}|(("?"|":"|"-"){NS_PLAIN_SAFE}))
 NB_NS_PLAIN_IN_LINE=({OPTIONAL_WHITESPACE}{NS_PLAIN_CHAR})*
 NS_PLAIN_ONE_LINE={NS_PLAIN_FIRST}{NB_NS_PLAIN_IN_LINE}
 
+C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 
 %state SHORTHAND_TAG
 
@@ -108,6 +109,7 @@ NS_PLAIN_ONE_LINE={NS_PLAIN_FIRST}{NB_NS_PLAIN_IN_LINE}
 <YYINITIAL>     "["                   { return YamlTokenType.LBRACK; }
 <YYINITIAL>     "]"                   { return YamlTokenType.RBRACK; }
 
+<YYINITIAL>     {C_NB_COMMENT_TEXT}   { return YamlTokenType.COMMENT; }
 <YYINITIAL>     {NS_PLAIN_ONE_LINE}   { return YamlTokenType.NS_PLAIN; }
 
 <SHORTHAND_TAG> {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
