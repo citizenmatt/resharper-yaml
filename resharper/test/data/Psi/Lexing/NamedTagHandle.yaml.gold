@@ -5,7 +5,7 @@
 0008: WHITESPACE ' '
 0009: NS_CHARS 'tag:example.com,2000:app/'
 0034: NEW_LINE '\r\n'
-0036: NS_PLAIN '---'
+0036: DIRECTIVES_END '---'
 0039: NEW_LINE '\r\n'
 0041: BANG '!'
 0042: NS_TAG_CHARS 'e'

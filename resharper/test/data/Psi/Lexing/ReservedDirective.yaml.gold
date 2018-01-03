@@ -10,5 +10,7 @@
 0035: WHITESPACE '               '
 0050: COMMENT '# with a warning.'
 0067: NEW_LINE '\r\n'
-0069: NS_PLAIN '--- "foo"'
+0069: DIRECTIVES_END '---'
+0072: WHITESPACE ' '
+0073: C_DOUBLE_QUOTED '"foo"'
 0078: NEW_LINE '\r\n'

@@ -88,7 +88,7 @@ NS_PLAIN_SAFE={NS_PLAIN_SAFE_IN}
 NS_PLAIN_SAFE_MINUS_COLON_AND_HASH={NS_PLAIN_SAFE_IN_MINUS_COLON_AND_HASH}
 
 NS_PLAIN_CHAR=({NS_PLAIN_SAFE_MINUS_COLON_AND_HASH}|({NS_CHAR}"#")|(":"{NS_PLAIN_SAFE}))
-NS_PLAIN_FIRST=({NS_CHAR_MINUS_C_INDICATOR}|(("?"|":"|"-"){NS_PLAIN_SAFE}))
+NS_PLAIN_FIRST=({NS_CHAR_MINUS_C_INDICATOR}|([?:-]{NS_PLAIN_SAFE}))
 NB_NS_PLAIN_IN_LINE=({OPTIONAL_WHITESPACE}{NS_PLAIN_CHAR})*
 NS_PLAIN_ONE_LINE={NS_PLAIN_FIRST}{NB_NS_PLAIN_IN_LINE}
 
@@ -118,7 +118,7 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     {WHITESPACE}          { return YamlTokenType.WHITESPACE; }
 <YYINITIAL>     {NEW_LINE}            { return YamlTokenType.NEW_LINE; }
 
-<YYINITIAL>     "%"                   { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
+<YYINITIAL>     ^"%"                  { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
 <YYINITIAL>     "&"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
 <YYINITIAL>     "*"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
 <YYINITIAL>     "!"                   { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
@@ -132,7 +132,11 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     "}"                   { return YamlTokenType.RBRACE; }
 <YYINITIAL>     "["                   { return YamlTokenType.LBRACK; }
 <YYINITIAL>     "]"                   { return YamlTokenType.RBRACK; }
+<YYINITIAL>     "|"                   { return YamlTokenType.PIPE; }
 <YYINITIAL>     "?"                   { return YamlTokenType.QUESTION; }
+
+<YYINITIAL>     ^"---"                { return YamlTokenType.DIRECTIVES_END; }
+<YYINITIAL>     ^"..."                { return YamlTokenType.DOCUMENT_END; }
 
 <YYINITIAL,DIRECTIVE>
                 {C_NB_COMMENT_TEXT}   { return YamlTokenType.COMMENT; }
