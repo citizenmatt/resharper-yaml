@@ -76,7 +76,7 @@ NS_WORD_CHAR=({NS_DEC_DIGIT}|{NS_ASCII_LETTER}|"-")
 
 URL_ENCODED_CHAR=("%"{NS_HEX_DIGIT}{NS_HEX_DIGIT})
 NS_URI_CHAR=({URL_ENCODED_CHAR}|{NS_WORD_CHAR}|{URI_SYMBOLS})
-NS_TAG_CHAR={URL_ENCODED_CHAR}|{NS_WORD_CHAR}|{URI_SYMBOLS_MINUS_BANG_AND_C_FLOW_INDICATOR}
+NS_TAG_CHAR=({URL_ENCODED_CHAR}|{NS_WORD_CHAR}|{URI_SYMBOLS_MINUS_BANG_AND_C_FLOW_INDICATOR})
 
 NS_PLAIN_SAFE_IN={NS_CHAR_MINUS_C_FLOW_INDICATOR}
 NS_PLAIN_SAFE_OUT={NS_CHAR}
@@ -110,7 +110,7 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 
 
 %state ANCHOR_ALIAS
-%state SHORTHAND_TAG
+%state SHORTHAND_TAG, VERBATIM_TAG
 
 %%
 
@@ -120,6 +120,7 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     "&"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
 <YYINITIAL>     "*"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
 <YYINITIAL>     "!"                   { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
+<YYINITIAL>     "!<"                  { yybegin(VERBATIM_TAG); return YamlTokenType.BANG_LT; }
 <YYINITIAL>     ":"                   { return YamlTokenType.COLON; }
 <YYINITIAL>     ","                   { return YamlTokenType.COMMA; }
 <YYINITIAL>     "-"                   { return YamlTokenType.MINUS; }
@@ -135,16 +136,25 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     {C_DOUBLE_QUOTED}     { return YamlTokenType.C_DOUBLE_QUOTED; }
 <YYINITIAL>     {NS_PLAIN_ONE_LINE}   { return YamlTokenType.NS_PLAIN; }
 
+
 <ANCHOR_ALIAS>  {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
 <ANCHOR_ALIAS>  {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
 <ANCHOR_ALIAS>  {NS_ANCHOR_NAME}      { yybegin(YYINITIAL); return YamlTokenType.NS_ANCHOR_NAME; }
 
-<SHORTHAND_TAG> {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
-<SHORTHAND_TAG> {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
-<SHORTHAND_TAG> "!"                   { return YamlTokenType.BANG; }
-<SHORTHAND_TAG> "<"                   { return YamlTokenType.LT; }
-<SHORTHAND_TAG> ">"                   { return YamlTokenType.GT; }
-<SHORTHAND_TAG> ({NS_TAG_CHAR})+      { yybegin(YYINITIAL); return YamlTokenType.IDENTIFIER; }
 
-<YYINITIAL,ANCHOR_ALIAS,SHORTHAND_TAG>
+<SHORTHAND_TAG,VERBATIM_TAG>
+                {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
+<SHORTHAND_TAG,VERBATIM_TAG>
+                {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
+
+
+<SHORTHAND_TAG> "!"                   { return YamlTokenType.BANG; }
+<SHORTHAND_TAG> {NS_TAG_CHAR}+        { yybegin(YYINITIAL); return YamlTokenType.NS_TAG_CHARS; }
+
+
+<VERBATIM_TAG>  {NS_URI_CHAR}+        { yybegin(YYINITIAL); return YamlTokenType.NS_URI_CHARS; }
+<VERBATIM_TAG>  ">"                   { yybegin(YYINITIAL); return YamlTokenType.GT; }
+
+
+<YYINITIAL,ANCHOR_ALIAS,SHORTHAND_TAG,VERBATIM_TAG>
                 .                     { return YamlTokenType.BAD_CHARACTER; }

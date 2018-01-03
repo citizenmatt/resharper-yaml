@@ -25,6 +25,7 @@
     <Token name="AMP" representation="&amp;" />
     <Token name="ASTERISK" representation="*" />
     <Token name="BANG" representation="!" />
+    <Token name="BANG_LT" representation="!&lt;" />
     <Token name="COLON" representation=":" />
     <Token name="COMMA" representation="," />
     <Token name="LBRACE" representation="{" />
