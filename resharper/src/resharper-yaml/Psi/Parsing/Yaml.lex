@@ -109,6 +109,7 @@ C_DOUBLE_QUOTED={QUOTE_CHAR}{NB_DOUBLE_TEXT}{QUOTE_CHAR}
 C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 
 
+%state DIRECTIVE
 %state ANCHOR_ALIAS
 %state SHORTHAND_TAG, VERBATIM_TAG
 
@@ -117,6 +118,7 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     {WHITESPACE}          { return YamlTokenType.WHITESPACE; }
 <YYINITIAL>     {NEW_LINE}            { return YamlTokenType.NEW_LINE; }
 
+<YYINITIAL>     "%"                   { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
 <YYINITIAL>     "&"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
 <YYINITIAL>     "*"                   { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
 <YYINITIAL>     "!"                   { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
@@ -132,10 +134,20 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     "]"                   { return YamlTokenType.RBRACK; }
 <YYINITIAL>     "?"                   { return YamlTokenType.QUESTION; }
 
-<YYINITIAL>     {C_NB_COMMENT_TEXT}   { return YamlTokenType.COMMENT; }
+<YYINITIAL,DIRECTIVE>
+                {C_NB_COMMENT_TEXT}   { return YamlTokenType.COMMENT; }
+
 <YYINITIAL>     {C_SINGLE_QUOTED}     { return YamlTokenType.C_SINGLE_QUOTED; }
 <YYINITIAL>     {C_DOUBLE_QUOTED}     { return YamlTokenType.C_DOUBLE_QUOTED; }
 <YYINITIAL>     {NS_PLAIN_ONE_LINE}   { return YamlTokenType.NS_PLAIN; }
+
+
+<DIRECTIVE>     {WHITESPACE}          { return YamlTokenType.WHITESPACE; }
+<DIRECTIVE>     {NEW_LINE}            { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
+<DIRECTIVE>     "!"                   { return YamlTokenType.BANG; }
+<DIRECTIVE>     {NS_CHAR}+            { return YamlTokenType.NS_CHARS; }
+<DIRECTIVE>     {NS_WORD_CHAR}+       { return YamlTokenType.NS_WORD_CHARS; }
+<DIRECTIVE>     {NS_URI_CHAR}+        { return YamlTokenType.NS_URI_CHARS; }
 
 
 <ANCHOR_ALIAS>  {WHITESPACE}          { yybegin(YYINITIAL); return YamlTokenType.WHITESPACE; }
@@ -157,5 +169,5 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <VERBATIM_TAG>  ">"                   { yybegin(YYINITIAL); return YamlTokenType.GT; }
 
 
-<YYINITIAL,ANCHOR_ALIAS,SHORTHAND_TAG,VERBATIM_TAG>
+<YYINITIAL,DIRECTIVE,ANCHOR_ALIAS,SHORTHAND_TAG,VERBATIM_TAG>
                 .                     { return YamlTokenType.BAD_CHARACTER; }

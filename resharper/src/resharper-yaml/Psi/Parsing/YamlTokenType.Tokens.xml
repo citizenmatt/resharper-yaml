@@ -35,6 +35,7 @@
     <Token name="LT" representation="&lt;" />
     <Token name="GT" representation="&gt;" />
     <Token name="MINUS" representation="-" />
+    <Token name="PERCENT" representation="%" />
     <Token name="QUESTION" representation="?" />
   </Tokens>
 </YamlTokens>
