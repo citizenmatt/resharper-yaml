@@ -130,6 +130,7 @@ C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 <YYINITIAL>     "}"                   { return YamlTokenType.RBRACE; }
 <YYINITIAL>     "["                   { return YamlTokenType.LBRACK; }
 <YYINITIAL>     "]"                   { return YamlTokenType.RBRACK; }
+<YYINITIAL>     "?"                   { return YamlTokenType.QUESTION; }
 
 <YYINITIAL>     {C_NB_COMMENT_TEXT}   { return YamlTokenType.COMMENT; }
 <YYINITIAL>     {C_SINGLE_QUOTED}     { return YamlTokenType.C_SINGLE_QUOTED; }
