@@ -89,6 +89,11 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     public int EOFPos => yy_eof_pos;
     public int LexemIndent => 7;  // No, I don't know why
 
+    protected void RewindToken()
+    {
+      yy_buffer_end = yy_buffer_index = yy_buffer_start;
+    }
+
     private TokenNodeType LocateToken()
     {
       if (currentTokenType == null)

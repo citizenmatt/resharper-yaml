@@ -1,4 +1,5 @@
-﻿0000: C_SINGLE_QUOTED ''implicit block key''
+﻿0000: SYNTHETIC_DIRECTIVES_END ''
+0000: C_SINGLE_QUOTED ''implicit block key''
 0020: WHITESPACE ' '
 0021: COLON ':'
 0022: WHITESPACE ' '

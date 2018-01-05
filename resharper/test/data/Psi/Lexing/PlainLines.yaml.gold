@@ -1,4 +1,5 @@
-﻿0000: NS_PLAIN '1st non-empty'
+﻿0000: SYNTHETIC_DIRECTIVES_END ''
+0000: NS_PLAIN '1st non-empty'
 0013: NEW_LINE '\r\n'
 0015: NEW_LINE '\r\n'
 0017: WHITESPACE ' '

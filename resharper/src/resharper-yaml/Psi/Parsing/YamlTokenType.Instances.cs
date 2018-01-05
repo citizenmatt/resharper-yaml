@@ -13,6 +13,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     public static readonly TokenNodeType COMMENT = new CommentTokenNodeType(LAST_GENERATED_TOKEN_TYPE_INDEX + 14);
 
+    public static readonly TokenNodeType SYNTHETIC_DIRECTIVES_END = new GenericTokenNodeType("SYNTHETIC_DIRECTIVES_END", LAST_GENERATED_TOKEN_TYPE_INDEX + 15, "SYNTHETIC_DIRECTIVES_END");
+
     // TODO: Naming. The YAML spec has an interesting hungarian notation style...
     // Should NS_URI_CHARS, NS_TAG_CHARS, NS_PLAIN and NS_ANCHOR_NAME just become some kind of "VALUE"?
     // I don't think the parser would really care what type of textual value it is - as long as the value is there

@@ -1,4 +1,5 @@
-﻿0000: NS_PLAIN 'plain key'
+﻿0000: SYNTHETIC_DIRECTIVES_END ''
+0000: NS_PLAIN 'plain key'
 0009: COLON ':'
 0010: WHITESPACE ' '
 0011: NS_PLAIN 'in-line value'
