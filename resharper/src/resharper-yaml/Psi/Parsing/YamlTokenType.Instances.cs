@@ -24,7 +24,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     public static readonly TokenNodeType NS_TAG_CHARS = new GenericTokenNodeType("NS_TAG_CHARS", LAST_GENERATED_TOKEN_TYPE_INDEX + 23, "NS_TAG_CHARS");
     public static readonly TokenNodeType NS_PLAIN = new GenericTokenNodeType("NS_PLAIN", LAST_GENERATED_TOKEN_TYPE_INDEX + 24, "NS_PLAIN");
     public static readonly TokenNodeType NS_ANCHOR_NAME = new GenericTokenNodeType("NS_ANCHOR_NAME", LAST_GENERATED_TOKEN_TYPE_INDEX + 25, "NS_ANCHOR_NAME");
-    public static readonly TokenNodeType C_SINGLE_QUOTED = new GenericTokenNodeType("C_SINGLE_QUOTED", LAST_GENERATED_TOKEN_TYPE_INDEX + 26, "C_SINGLE_QUOTED");
-    public static readonly TokenNodeType C_DOUBLE_QUOTED = new GenericTokenNodeType("C_DOUBLE_QUOTED", LAST_GENERATED_TOKEN_TYPE_INDEX + 27, "C_DOUBLE_QUOTED");
+    public static readonly TokenNodeType C_SINGLE_QUOTED_SINGLE_LINE = new GenericTokenNodeType("C_SINGLE_QUOTED_SINGLE_LINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 26, "C_SINGLE_QUOTED_SINGLE_LINE");
+    public static readonly TokenNodeType C_SINGLE_QUOTED_MULTILINE = new GenericTokenNodeType("C_SINGLE_QUOTED_MULTILINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 27, "C_SINGLE_QUOTED_MULTILINE");
+    public static readonly TokenNodeType C_DOUBLE_QUOTED_SINGLE_LINE = new GenericTokenNodeType("C_DOUBLE_QUOTED_SINGLE_LINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 28, "C_DOUBLE_QUOTED_SINGLE_LINE");
+    public static readonly TokenNodeType C_DOUBLE_QUOTED_MULTILINE = new GenericTokenNodeType("C_DOUBLE_QUOTED_MULTILINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 29, "C_DOUBLE_QUOTED_MULTILINE");
   }
 }

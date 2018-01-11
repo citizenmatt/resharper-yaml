@@ -158,10 +158,10 @@ C_DIRECTIVES_END=^"---"
 <YYINITIAL, DIRECTIVE, BLOCK_IN>
                 {C_NB_COMMENT_TEXT}     { return YamlTokenType.COMMENT; }
 
-<BLOCK_IN>      {C_SINGLE_QUOTED_key}   { return YamlTokenType.C_SINGLE_QUOTED; }
-<BLOCK_IN>      {C_SINGLE_QUOTED_flow}  { return YamlTokenType.C_SINGLE_QUOTED; }
-<BLOCK_IN>      {C_DOUBLE_QUOTED_key}   { return YamlTokenType.C_DOUBLE_QUOTED; }
-<BLOCK_IN>      {C_DOUBLE_QUOTED_flow}  { return YamlTokenType.C_DOUBLE_QUOTED; }
+<BLOCK_IN>      {C_SINGLE_QUOTED_key}   { return YamlTokenType.C_SINGLE_QUOTED_SINGLE_LINE; }
+<BLOCK_IN>      {C_SINGLE_QUOTED_flow}  { return YamlTokenType.C_SINGLE_QUOTED_MULTILINE; }
+<BLOCK_IN>      {C_DOUBLE_QUOTED_key}   { return YamlTokenType.C_DOUBLE_QUOTED_SINGLE_LINE; }
+<BLOCK_IN>      {C_DOUBLE_QUOTED_flow}  { return YamlTokenType.C_DOUBLE_QUOTED_MULTILINE; }
 <BLOCK_IN>      {NS_PLAIN_ONE_LINE}     { return YamlTokenType.NS_PLAIN; }
 
 
