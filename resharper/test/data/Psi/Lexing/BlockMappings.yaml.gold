@@ -2,7 +2,7 @@
 0000: NS_PLAIN 'block mapping'
 0013: COLON ':'
 0014: NEW_LINE '\r\n'
-0016: WHITESPACE ' '
+0016: INDENT ' '
 0017: NS_PLAIN 'key'
 0020: COLON ':'
 0021: WHITESPACE ' '

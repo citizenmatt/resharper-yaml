@@ -37,6 +37,7 @@
     <Token name="MINUS" representation="-" />
     <Token name="PERCENT" representation="%" />
     <Token name="PIPE" representation="|" />
+    <Token name="PLUS" representation="+" />
     <Token name="QUESTION" representation="?" />
   </Tokens>
 

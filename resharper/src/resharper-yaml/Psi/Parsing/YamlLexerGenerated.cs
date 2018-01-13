@@ -11,9 +11,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     // ReSharper disable InconsistentNaming
     private TokenNodeType currentTokenType;
 
+    private int currentLineIndent;
+
     private struct TokenPosition
     {
       public TokenNodeType CurrentTokenType;
+      public int CurrentLineIndent;
       public int YyBufferIndex;
       public int YyBufferStart;
       public int YyBufferEnd;
@@ -46,6 +49,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       {
         TokenPosition tokenPosition;
         tokenPosition.CurrentTokenType = currentTokenType;
+        tokenPosition.CurrentLineIndent = currentLineIndent;
         tokenPosition.YyBufferIndex = yy_buffer_index;
         tokenPosition.YyBufferStart = yy_buffer_start;
         tokenPosition.YyBufferEnd = yy_buffer_end;
@@ -56,6 +60,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       {
         var tokenPosition = (TokenPosition) value;
         currentTokenType = tokenPosition.CurrentTokenType;
+        currentLineIndent = tokenPosition.CurrentLineIndent;
         yy_buffer_index = tokenPosition.YyBufferIndex;
         yy_buffer_start = tokenPosition.YyBufferStart;
         yy_buffer_end = tokenPosition.YyBufferEnd;

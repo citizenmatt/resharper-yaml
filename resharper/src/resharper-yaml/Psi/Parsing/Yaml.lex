@@ -9,6 +9,7 @@ using JetBrains.Util;
 
 %init{
   currentTokenType = null;
+  currentLineIndent = 0;
 %init}
 
 %namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
@@ -36,6 +37,7 @@ RBRACK_CHAR=\u005D
 LBRACE_CHAR=\u007B
 RBRACE_CHAR=\u007D
 QUOTE_CHAR=\u0022
+
 
 YAML11_NEW_LINE_CHARS={LINE_SEPARATOR}{PARAGRAPH_SEPARATOR}
 NEW_LINE_CHARS={CR}{LF}
@@ -123,9 +125,11 @@ C_DIRECTIVES_END=^"---"
 %%
 
 <YYINITIAL, BLOCK_IN>
+                ^{WHITESPACE}           { currentLineIndent = yy_buffer_end; return YamlTokenType.INDENT; }
+<YYINITIAL, BLOCK_IN>
                 {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
 <YYINITIAL, BLOCK_IN>
-                {NEW_LINE}              { return YamlTokenType.NEW_LINE; }
+                {NEW_LINE}              { currentLineIndent = 0; return YamlTokenType.NEW_LINE; }
 
 <YYINITIAL>     ^"%"                    { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
 <YYINITIAL>     {C_DIRECTIVES_END}      { yybegin(BLOCK_IN); return YamlTokenType.DIRECTIVES_END; }
@@ -166,7 +170,7 @@ C_DIRECTIVES_END=^"---"
 
 
 <DIRECTIVE>     {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
-<DIRECTIVE>     {NEW_LINE}              { yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
+<DIRECTIVE>     {NEW_LINE}              { currentLineIndent = 0; yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
 <DIRECTIVE>     "!"                     { return YamlTokenType.BANG; }
 <DIRECTIVE>     {NS_CHAR}+              { return YamlTokenType.NS_CHARS; }
 <DIRECTIVE>     {NS_WORD_CHAR}+         { return YamlTokenType.NS_WORD_CHARS; }
@@ -174,14 +178,14 @@ C_DIRECTIVES_END=^"---"
 
 
 <ANCHOR_ALIAS>  {WHITESPACE}            { yybegin(BLOCK_IN); return YamlTokenType.WHITESPACE; }
-<ANCHOR_ALIAS>  {NEW_LINE}              { yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
+<ANCHOR_ALIAS>  {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
 <ANCHOR_ALIAS>  {NS_ANCHOR_NAME}        { yybegin(BLOCK_IN); return YamlTokenType.NS_ANCHOR_NAME; }
 
 
 <SHORTHAND_TAG, VERBATIM_TAG>
                 {WHITESPACE}            { yybegin(BLOCK_IN); return YamlTokenType.WHITESPACE; }
 <SHORTHAND_TAG, VERBATIM_TAG>
-                {NEW_LINE}              { yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
+                {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
 
 <SHORTHAND_TAG> "!"                     { return YamlTokenType.BANG; }
 <SHORTHAND_TAG> {NS_TAG_CHAR}+          { yybegin(BLOCK_IN); return YamlTokenType.NS_TAG_CHARS; }

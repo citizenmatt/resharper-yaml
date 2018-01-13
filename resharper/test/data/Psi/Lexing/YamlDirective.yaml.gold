@@ -5,7 +5,7 @@
 0009: WHITESPACE ' '
 0010: COMMENT '# Attempt parsing'
 0027: NEW_LINE '\r\n'
-0029: WHITESPACE '           '
+0029: INDENT '           '
 0040: COMMENT '# with a warning'
 0056: NEW_LINE '\r\n'
 0058: DIRECTIVES_END '---'
