@@ -122,6 +122,10 @@ S_NS_PLAIN_NEXT_LINE__OUT=({S_FLOW_FOLDED}{NS_PLAIN_NEXT_LINE__OUT})
 NS_PLAIN_MULTI_LINE__OUT={NS_PLAIN_ONE_LINE__OUT}{S_NS_PLAIN_NEXT_LINE__OUT}*
 
 
+IMPLICIT_BLOCK_KEY={NS_PLAIN_ONE_LINE__OUT}{OPTIONAL_WHITESPACE}":"
+IMPLICIT_FLOW_KEY={NS_PLAIN_ONE_LINE__IN}{OPTIONAL_WHITESPACE}":"
+
+
 NS_ANCHOR_CHAR=({NS_CHAR__MINUS_C_FLOW_INDICATOR})
 NS_ANCHOR_NAME={NS_ANCHOR_CHAR}+
 
@@ -162,7 +166,7 @@ C_DOCUMENT_END=^"..."
 
 <YYINITIAL>     ^"%"                    { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
 <YYINITIAL>     {C_DIRECTIVES_END}      { currentLineIndent = 0; yybegin(BLOCK); return YamlTokenType.DIRECTIVES_END; }
-<YYINITIAL>     .                       { currentLineIndent = 0; yybegin(BLOCK); return YamlTokenType.SYNTHETIC_DIRECTIVES_END; }
+<YYINITIAL>     .                       { currentLineIndent = 0; yybegin(BLOCK); RewindToken(); return _locateToken(); }
 
 <YYINITIAL, BLOCK, BLOCK_SCALAR>
                 {C_DOCUMENT_END}        { yybegin(YYINITIAL); return YamlTokenType.DOCUMENT_END; }
@@ -171,8 +175,7 @@ C_DOCUMENT_END=^"..."
 <BLOCK>         {C_DIRECTIVES_END}      { return YamlTokenType.DIRECTIVES_END; }
 
 <BLOCK>         {NS_PLAIN_ONE_LINE__OUT}  { return YamlTokenType.NS_PLAIN_ONE_LINE; }
-<BLOCK>         {NS_PLAIN_ONE_LINE__OUT}{OPTIONAL_WHITESPACE}":"
-                                          { return YamlTokenType._INTERNAL_BLOCK_KEY; }
+<BLOCK>         {IMPLICIT_BLOCK_KEY}      { return HandleImplicitKey(); }
 
 
 <BLOCK, FLOW>   "@"                     { return YamlTokenType.AT; }
@@ -207,9 +210,9 @@ C_DOCUMENT_END=^"..."
 <JSON_ADJACENT_VALUE> {NEW_LINE}        { return RewindJsonAdjacentValue(); }
 <JSON_ADJACENT_VALUE> .                 { return RewindJsonAdjacentValue(); }
 
-<FLOW>          {NS_PLAIN_ONE_LINE__IN}   { return YamlTokenType.NS_PLAIN_ONE_LINE; }
-<FLOW>          {NS_PLAIN_ONE_LINE__IN}{WHITESPACE}":"
-                                          { return YamlTokenType._INTERNAL_FLOW_KEY; }
+
+<FLOW>          {NS_PLAIN_ONE_LINE__IN} { return YamlTokenType.NS_PLAIN_ONE_LINE; }
+<FLOW>          {IMPLICIT_FLOW_KEY}     { return HandleImplicitKey(); }
 
 
 <DIRECTIVE>     {WHITESPACE}            { return YamlTokenType.WHITESPACE; }

@@ -1,6 +1,5 @@
 ﻿0000: COMMENT '# Single line comment'
 0021: NEW_LINE '\r\n'
-0023: SYNTHETIC_DIRECTIVES_END ''
 0023: NS_PLAIN 'key'
 0026: COLON ':'
 0027: WHITESPACE '    '

@@ -196,11 +196,6 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private bool IsBlock => flowLevel == 0;
 
-    protected void RewindToken()
-    {
-      yy_buffer_end = yy_buffer_index = yy_buffer_start;
-    }
-
     private TokenNodeType LocateToken()
     {
       if (currentTokenType == null)
@@ -229,12 +224,17 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return currentTokenType;
     }
 
-    protected void RewindChar()
+    private void RewindToken()
+    {
+      yy_buffer_end = yy_buffer_index = yy_buffer_start;
+    }
+
+    private void RewindChar()
     {
       yy_buffer_end = yy_buffer_index = yy_buffer_index - 1;
     }
 
-    protected void RewindWhitespace()
+    private void RewindWhitespace()
     {
       while (yy_buffer_index > 0 && IsWhitespace(yy_buffer[yy_buffer_index - 1]))
         yy_buffer_end = yy_buffer_index = yy_buffer_index - 1;
@@ -258,6 +258,16 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     private void ResetBlockFlowState()
     {
       yybegin(IsBlock ? BLOCK : FLOW);
+    }
+
+    private TokenNodeType HandleImplicitKey()
+    {
+      // We special case implicit keys as a single line ns-plain followed by a colon
+      // But we want to return that as separate tokens. So match it, rewind and let
+      // the next pass handle the whitespace and colon
+      RewindChar();
+      RewindWhitespace();
+      return YamlTokenType.NS_PLAIN_ONE_LINE;
     }
 
     private void BeginBlockScalar()

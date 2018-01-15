@@ -1,6 +1,5 @@
 ﻿0000: COMMENT '# Outside flow collection:'
 0026: NEW_LINE '\r\n'
-0028: SYNTHETIC_DIRECTIVES_END ''
 0028: MINUS '-'
 0029: WHITESPACE ' '
 0030: NS_PLAIN '::vector'

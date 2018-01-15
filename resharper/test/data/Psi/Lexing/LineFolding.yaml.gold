@@ -1,6 +1,5 @@
 ﻿0000: COMMENT '# Folding indicator followed by chomping indicator'
 0050: NEW_LINE '\r\n'
-0052: SYNTHETIC_DIRECTIVES_END ''
 0052: GT '>'
 0053: MINUS '-'
 0054: NEW_LINE '\r\n'

@@ -1,6 +1,5 @@
 ﻿0000: COMMENT '# Tabs and spaces'
 0017: NEW_LINE '\r\n'
-0019: SYNTHETIC_DIRECTIVES_END ''
 0019: NS_PLAIN 'quoted'
 0025: COLON ':'
 0026: WHITESPACE ' '
