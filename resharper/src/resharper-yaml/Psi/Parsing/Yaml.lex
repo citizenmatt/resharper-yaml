@@ -114,11 +114,13 @@ C_DOUBLE_QUOTED_flow={QUOTE_CHAR}{NB_DOUBLE_MULTI_LINE}{QUOTE_CHAR}
 C_NB_COMMENT_TEXT="#"{NB_CHAR}*
 
 C_DIRECTIVES_END=^"---"
+C_DOCUMENT_END=^"..."
 
 
 %state BLOCK_IN, BLOCK_OUT, BLOCK_KEY
 %state FLOW_IN, FLOW_OUT, FLOW_KEY
 %state DIRECTIVE
+%state BLOCK_SCALAR_HEADER, BLOCK_SCALAR
 %state ANCHOR_ALIAS
 %state SHORTHAND_TAG, VERBATIM_TAG
 
@@ -132,11 +134,11 @@ C_DIRECTIVES_END=^"---"
                 {NEW_LINE}              { currentLineIndent = 0; return YamlTokenType.NEW_LINE; }
 
 <YYINITIAL>     ^"%"                    { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
-<YYINITIAL>     {C_DIRECTIVES_END}      { yybegin(BLOCK_IN); return YamlTokenType.DIRECTIVES_END; }
-<YYINITIAL>     .                       { yybegin(BLOCK_IN); return YamlTokenType.SYNTHETIC_DIRECTIVES_END; }
+<YYINITIAL>     {C_DIRECTIVES_END}      { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.DIRECTIVES_END; }
+<YYINITIAL>     .                       { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.SYNTHETIC_DIRECTIVES_END; }
 
-<YYINITIAL, BLOCK_IN>
-                ^"..."                  { yybegin(YYINITIAL); return YamlTokenType.DOCUMENT_END; }
+<YYINITIAL, BLOCK_IN, BLOCK_SCALAR>
+                {C_DOCUMENT_END}        { yybegin(YYINITIAL); return YamlTokenType.DOCUMENT_END; }
 
 
 <BLOCK_IN>      {C_DIRECTIVES_END}      { return YamlTokenType.DIRECTIVES_END; }
@@ -146,20 +148,20 @@ C_DIRECTIVES_END=^"---"
 <BLOCK_IN>      "*"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
 <BLOCK_IN>      "!"                     { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
 <BLOCK_IN>      "!<"                    { yybegin(VERBATIM_TAG); return YamlTokenType.BANG_LT; }
+<BLOCK_IN>      ">"                     { BeginBlockScalar(); return YamlTokenType.GT; }
+<BLOCK_IN>      "|"                     { BeginBlockScalar(); return YamlTokenType.PIPE; }
 <BLOCK_IN>      ":"                     { return YamlTokenType.COLON; }
 <BLOCK_IN>      ","                     { return YamlTokenType.COMMA; }
 <BLOCK_IN>      "-"                     { return YamlTokenType.MINUS; }
 <BLOCK_IN>      "<"                     { return YamlTokenType.LT; }
-<BLOCK_IN>      ">"                     { return YamlTokenType.GT; }
 <BLOCK_IN>      "{"                     { return YamlTokenType.LBRACE; }
 <BLOCK_IN>      "}"                     { return YamlTokenType.RBRACE; }
 <BLOCK_IN>      "["                     { return YamlTokenType.LBRACK; }
 <BLOCK_IN>      "]"                     { return YamlTokenType.RBRACK; }
 <BLOCK_IN>      "%"                     { return YamlTokenType.PERCENT; }
-<BLOCK_IN>      "|"                     { return YamlTokenType.PIPE; }
 <BLOCK_IN>      "?"                     { return YamlTokenType.QUESTION; }
 
-<YYINITIAL, DIRECTIVE, BLOCK_IN>
+<YYINITIAL, DIRECTIVE, BLOCK_SCALAR_HEADER, BLOCK_IN>
                 {C_NB_COMMENT_TEXT}     { return YamlTokenType.COMMENT; }
 
 <BLOCK_IN>      {C_SINGLE_QUOTED_key}   { return YamlTokenType.C_SINGLE_QUOTED_SINGLE_LINE; }
@@ -177,6 +179,25 @@ C_DIRECTIVES_END=^"---"
 <DIRECTIVE>     {NS_URI_CHAR}+          { return YamlTokenType.NS_URI_CHARS; }
 
 
+<BLOCK_SCALAR_HEADER>
+                {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_SCALAR); return YamlTokenType.NEW_LINE; }
+<BLOCK_SCALAR_HEADER>
+                "+"                     { return YamlTokenType.PLUS; }
+<BLOCK_SCALAR_HEADER>
+                "-"                     { return YamlTokenType.MINUS; }
+<BLOCK_SCALAR_HEADER>
+                {NS_DEC_DIGIT}          { return YamlTokenType.NS_DEC_DIGIT; }
+<BLOCK_SCALAR_HEADER>
+                {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
+                
+<BLOCK_SCALAR>  {NEW_LINE}              { currentLineIndent = 0; return YamlTokenType.NEW_LINE; }
+<BLOCK_SCALAR>  ^{WHITESPACE}           { currentLineIndent = yy_buffer_end; HandleBlockScalarWhitespace(); return YamlTokenType.INDENT; } 
+<BLOCK_SCALAR>  {WHITESPACE}            { HandleBlockScalarWhitespace(); return YamlTokenType.WHITESPACE; }
+<BLOCK_SCALAR>  {NB_CHAR}+              { return YamlTokenType.SCALAR_TEXT; }
+<BLOCK_SCALAR>  ^([^{WHITESPACE_CHARS}]){NB_CHAR}+
+                                        { return HandleBlockScalarLine(); }
+
+
 <ANCHOR_ALIAS>  {WHITESPACE}            { yybegin(BLOCK_IN); return YamlTokenType.WHITESPACE; }
 <ANCHOR_ALIAS>  {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
 <ANCHOR_ALIAS>  {NS_ANCHOR_NAME}        { yybegin(BLOCK_IN); return YamlTokenType.NS_ANCHOR_NAME; }
@@ -191,7 +212,8 @@ C_DIRECTIVES_END=^"---"
 <SHORTHAND_TAG> {NS_TAG_CHAR}+          { yybegin(BLOCK_IN); return YamlTokenType.NS_TAG_CHARS; }
 
 
-<VERBATIM_TAG>  {NS_URI_CHAR}+          { yybegin(BLOCK_IN); return YamlTokenType.NS_URI_CHARS; }
+<VERBATIM_TAG>  {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
+<VERBATIM_TAG>  {NS_URI_CHAR}+          { return YamlTokenType.NS_URI_CHARS; }
 <VERBATIM_TAG>  ">"                     { yybegin(BLOCK_IN); return YamlTokenType.GT; }
 
 

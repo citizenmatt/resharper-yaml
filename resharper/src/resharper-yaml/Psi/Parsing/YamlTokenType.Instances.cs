@@ -30,5 +30,6 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     public static readonly TokenNodeType C_DOUBLE_QUOTED_SINGLE_LINE = new GenericTokenNodeType("C_DOUBLE_QUOTED_SINGLE_LINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 38, "C_DOUBLE_QUOTED_SINGLE_LINE");
     public static readonly TokenNodeType C_DOUBLE_QUOTED_MULTILINE = new GenericTokenNodeType("C_DOUBLE_QUOTED_MULTILINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 39, "C_DOUBLE_QUOTED_MULTILINE");
     public static readonly TokenNodeType NS_DEC_DIGIT = new GenericTokenNodeType("NS_DEC_DIGIT", LAST_GENERATED_TOKEN_TYPE_INDEX + 40, "NS_DEC_DIGIT");
+    public static readonly TokenNodeType SCALAR_TEXT = new GenericTokenNodeType("SCALAR_TEXT", LAST_GENERATED_TOKEN_TYPE_INDEX + 41, "SCALAR_TEXT");
   }
 }

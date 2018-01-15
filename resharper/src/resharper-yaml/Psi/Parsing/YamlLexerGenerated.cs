@@ -13,10 +13,21 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private int currentLineIndent;
 
+    // The indent of the indicator of a block scalar. The contents must be more
+    // indented than this. However, we also need to handle the case where the
+    // indicator is at column 0, but we're in `block-in` context, i.e. at the
+    // root of the doucment. This allows the indent to also be at column 0 (the
+    // parent node is treated as being at column -1)
+    // TODO: Use the indentation indicator value to set this
+    private int blockScalarIndicatorIndent;
+    private int blockScalarIndent;
+
     private struct TokenPosition
     {
       public TokenNodeType CurrentTokenType;
       public int CurrentLineIndent;
+      public int BlockScalarIndicatorIndent;
+      public int BlockScalarIndent;
       public int YyBufferIndex;
       public int YyBufferStart;
       public int YyBufferEnd;
@@ -50,6 +61,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         TokenPosition tokenPosition;
         tokenPosition.CurrentTokenType = currentTokenType;
         tokenPosition.CurrentLineIndent = currentLineIndent;
+        tokenPosition.BlockScalarIndicatorIndent = blockScalarIndicatorIndent;
+        tokenPosition.BlockScalarIndent = blockScalarIndent;
         tokenPosition.YyBufferIndex = yy_buffer_index;
         tokenPosition.YyBufferStart = yy_buffer_start;
         tokenPosition.YyBufferEnd = yy_buffer_end;
@@ -61,6 +74,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         var tokenPosition = (TokenPosition) value;
         currentTokenType = tokenPosition.CurrentTokenType;
         currentLineIndent = tokenPosition.CurrentLineIndent;
+        blockScalarIndicatorIndent = tokenPosition.BlockScalarIndicatorIndent;
+        blockScalarIndent = tokenPosition.BlockScalarIndent;
         yy_buffer_index = tokenPosition.YyBufferIndex;
         yy_buffer_start = tokenPosition.YyBufferStart;
         yy_buffer_end = tokenPosition.YyBufferEnd;
@@ -125,6 +140,41 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       }
 
       return currentTokenType;
+    }
+
+    private void BeginBlockScalar()
+    {
+      blockScalarIndicatorIndent = currentLineIndent;
+      blockScalarIndent = -1;
+      yybegin(BLOCK_SCALAR_HEADER);
+    }
+
+    private void HandleBlockScalarWhitespace()
+    {
+      // If the content indent hasn't been set, and we're indented in relation to the
+      // indicator, indent the content, otherwise, terminate the block scalar
+      if (blockScalarIndent == -1 && currentLineIndent >= blockScalarIndicatorIndent)
+        blockScalarIndent = currentLineIndent;
+      else if (currentLineIndent <= blockScalarIndent)
+        yybegin(BLOCK_IN);
+    }
+
+    private TokenNodeType HandleBlockScalarLine()
+    {
+      if (currentLineIndent <= blockScalarIndent)
+      {
+        EndBlockScalar();
+        RewindToken();
+        return _locateToken();
+      }
+
+      return YamlTokenType.SCALAR_TEXT;
+    }
+
+    private void EndBlockScalar()
+    {
+      blockScalarIndent = 0;
+      yybegin(BLOCK_IN);
     }
   }
 }
