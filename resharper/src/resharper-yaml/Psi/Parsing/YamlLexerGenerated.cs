@@ -294,5 +294,22 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       blockScalarIndent = 0;
       ResetBlockFlowState();
     }
+
+    private void BeginJsonAdjacentValue()
+    {
+      yybegin(JSON_ADJACENT_VALUE);
+    }
+
+    private void EndJsonAdjacentValue()
+    {
+      ResetBlockFlowState();
+    }
+
+    private TokenNodeType RewindJsonAdjacentValue()
+    {
+      RewindToken();
+      ResetBlockFlowState();
+      return _locateToken();
+    }
   }
 }

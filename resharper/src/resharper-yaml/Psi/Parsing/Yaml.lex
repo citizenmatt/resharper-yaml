@@ -147,6 +147,7 @@ C_DOCUMENT_END=^"..."
 %state BLOCK, FLOW
 %state DIRECTIVE
 %state BLOCK_SCALAR_HEADER, BLOCK_SCALAR
+%state JSON_ADJACENT_VALUE
 %state ANCHOR_ALIAS
 %state SHORTHAND_TAG, VERBATIM_TAG
 
@@ -187,20 +188,24 @@ C_DOCUMENT_END=^"..."
 <BLOCK, FLOW>   "-"                     { return YamlTokenType.MINUS; }
 <BLOCK, FLOW>   "<"                     { return YamlTokenType.LT; }
 <BLOCK, FLOW>   "{"                     { PushFlowIndicator(); return YamlTokenType.LBRACE; }
-<BLOCK, FLOW>   "}"                     { PopFlowIndicator(); return YamlTokenType.RBRACE; }
+<BLOCK, FLOW>   "}"                     { PopFlowIndicator(); BeginJsonAdjacentValue(); return YamlTokenType.RBRACE; }
 <BLOCK, FLOW>   "["                     { PushFlowIndicator(); return YamlTokenType.LBRACK; }
-<BLOCK, FLOW>   "]"                     { PopFlowIndicator(); return YamlTokenType.RBRACK; }
+<BLOCK, FLOW>   "]"                     { PopFlowIndicator(); BeginJsonAdjacentValue(); return YamlTokenType.RBRACK; }
 <BLOCK, FLOW>   "%"                     { return YamlTokenType.PERCENT; }
 <BLOCK, FLOW>   "?"                     { return YamlTokenType.QUESTION; }
 
 <YYINITIAL, DIRECTIVE, BLOCK_SCALAR_HEADER, BLOCK>
                 {C_NB_COMMENT_TEXT}     { return YamlTokenType.COMMENT; }
 
-<BLOCK, FLOW>   {C_SINGLE_QUOTED_key}   { return YamlTokenType.C_SINGLE_QUOTED_SINGLE_LINE; }
-<BLOCK, FLOW>   {C_SINGLE_QUOTED_flow}  { return YamlTokenType.C_SINGLE_QUOTED_MULTILINE; }
-<BLOCK, FLOW>   {C_DOUBLE_QUOTED_key}   { return YamlTokenType.C_DOUBLE_QUOTED_SINGLE_LINE; }
-<BLOCK, FLOW>   {C_DOUBLE_QUOTED_flow}  { return YamlTokenType.C_DOUBLE_QUOTED_MULTILINE; }
+<BLOCK, FLOW>   {C_SINGLE_QUOTED_key}   { BeginJsonAdjacentValue(); return YamlTokenType.C_SINGLE_QUOTED_SINGLE_LINE; }
+<BLOCK, FLOW>   {C_SINGLE_QUOTED_flow}  { BeginJsonAdjacentValue(); return YamlTokenType.C_SINGLE_QUOTED_MULTILINE; }
+<BLOCK, FLOW>   {C_DOUBLE_QUOTED_key}   { BeginJsonAdjacentValue(); return YamlTokenType.C_DOUBLE_QUOTED_SINGLE_LINE; }
+<BLOCK, FLOW>   {C_DOUBLE_QUOTED_flow}  { BeginJsonAdjacentValue(); return YamlTokenType.C_DOUBLE_QUOTED_MULTILINE; }
 
+
+<JSON_ADJACENT_VALUE> ":"               { EndJsonAdjacentValue(); return YamlTokenType.COLON; }
+<JSON_ADJACENT_VALUE> {NEW_LINE}        { return RewindJsonAdjacentValue(); }
+<JSON_ADJACENT_VALUE> .                 { return RewindJsonAdjacentValue(); }
 
 <FLOW>          {NS_PLAIN_ONE_LINE__IN}   { return YamlTokenType.NS_PLAIN_ONE_LINE; }
 <FLOW>          {NS_PLAIN_ONE_LINE__IN}{WHITESPACE}":"
