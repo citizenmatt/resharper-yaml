@@ -10,6 +10,7 @@ using JetBrains.Util;
 %init{
   currentTokenType = null;
   currentLineIndent = 0;
+  flowLevel = 0;
 %init}
 
 %namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
@@ -63,13 +64,13 @@ NB_JSON=({TAB}|[\u0020-\u10FFFF])
 NB_CHAR=({TAB}|{SP}|{ASCII_PRINTABLE}|{OTHER_PRINTABLE})
 NS_CHAR=({ASCII_PRINTABLE}|{OTHER_PRINTABLE})
 
-NB_JSON_MINUS_SINGLE_QUOTE=({TAB}|[\u0020-\u0026\u0028-\u10FFFF])
-NB_JSON_MINUS_DOUBLE_QUOTE=({TAB}|[\u0020-\u0021\u0023-\u10FFFF])
-NS_CHAR_MINUS_C_INDICATOR=({ASCII_COMMON}|{OTHER_PRINTABLE}|[$()+{DOT_CHAR}/;<={BACKSLASH_CHAR}{CARET_CHAR}_])
-NS_CHAR_MINUS_C_FLOW_INDICATOR=({ASCII_COMMON}|{OTHER_PRINTABLE}|[!{QUOTE_CHAR}#$%&'()*+{MINUS_CHAR}{DOT_CHAR}/:;<=>?@{BACKSLASH_CHAR}{CARET_CHAR}_`|~])
+NB_JSON__MINUS_SINGLE_QUOTE=({TAB}|[\u0020-\u0026\u0028-\u10FFFF])
+NB_JSON__MINUS_DOUBLE_QUOTE=({TAB}|[\u0020-\u0021\u0023-\u10FFFF])
+NS_CHAR__MINUS_C_INDICATOR=({ASCII_COMMON}|{OTHER_PRINTABLE}|[$()+{DOT_CHAR}/;<={BACKSLASH_CHAR}{CARET_CHAR}_])
+NS_CHAR__MINUS_C_FLOW_INDICATOR=({ASCII_COMMON}|{OTHER_PRINTABLE}|[!{QUOTE_CHAR}#$%&'()*+{MINUS_CHAR}{DOT_CHAR}/:;<=>?@{BACKSLASH_CHAR}{CARET_CHAR}_`|~])
 
 URI_SYMBOLS=[#;/?:@&=+$,_{DOT_CHAR}!~*'(){LBRACK_CHAR}{RBRACK_CHAR}]
-URI_SYMBOLS_MINUS_BANG_AND_C_FLOW_INDICATOR=[#;/?:@&=+$_{DOT_CHAR}~*'()]
+URI_SYMBOLS__MINUS_BANG_AND_C_FLOW_INDICATOR=[#;/?:@&=+$_{DOT_CHAR}~*'()]
 
 NS_DEC_DIGIT=[0-9]
 NS_HEX_DIGIT=[0-9a-fA-F]
@@ -79,35 +80,61 @@ NS_WORD_CHAR=({NS_DEC_DIGIT}|{NS_ASCII_LETTER}|"-")
 
 URL_ENCODED_CHAR=("%"{NS_HEX_DIGIT}{NS_HEX_DIGIT})
 NS_URI_CHAR=({URL_ENCODED_CHAR}|{NS_WORD_CHAR}|{URI_SYMBOLS})
-NS_TAG_CHAR=({URL_ENCODED_CHAR}|{NS_WORD_CHAR}|{URI_SYMBOLS_MINUS_BANG_AND_C_FLOW_INDICATOR})
+NS_TAG_CHAR=({URL_ENCODED_CHAR}|{NS_WORD_CHAR}|{URI_SYMBOLS__MINUS_BANG_AND_C_FLOW_INDICATOR})
 
-NS_PLAIN_SAFE_IN={NS_CHAR_MINUS_C_FLOW_INDICATOR}
+NS_PLAIN_SAFE_IN={NS_CHAR__MINUS_C_FLOW_INDICATOR}
 NS_PLAIN_SAFE_OUT={NS_CHAR}
 
-NS_PLAIN_SAFE_OUT_MINUS_COLON_AND_HASH=({ASCII_COMMON}|{OTHER_PRINTABLE}|[\u0021\u0022\u0024-\u002F\u003B-\u0040\u005B-\u0060\u007B-\u007E])
-NS_PLAIN_SAFE_IN_MINUS_COLON_AND_HASH=({ASCII_COMMON}|{OTHER_PRINTABLE}|[!{QUOTE_CHAR}$%&'()*+{MINUS_CHAR}{DOT_CHAR}/;<=>?@{BACKSLASH_CHAR}{CARET_CHAR}_`|~])
 
-NS_PLAIN_SAFE={NS_PLAIN_SAFE_IN}
-NS_PLAIN_SAFE_MINUS_COLON_AND_HASH={NS_PLAIN_SAFE_IN_MINUS_COLON_AND_HASH}
+NS_PLAIN_SAFE_OUT__MINUS_COLON_AND_HASH=({ASCII_COMMON}|{OTHER_PRINTABLE}|[\u0021\u0022\u0024-\u002F\u003B-\u0040\u005B-\u0060\u007B-\u007E])
+NS_PLAIN_SAFE_IN__MINUS_COLON_AND_HASH=({ASCII_COMMON}|{OTHER_PRINTABLE}|[!{QUOTE_CHAR}$%&'()*+{MINUS_CHAR}{DOT_CHAR}/;<=>?@{BACKSLASH_CHAR}{CARET_CHAR}_`|~])
 
-NS_PLAIN_CHAR=({NS_PLAIN_SAFE_MINUS_COLON_AND_HASH}|({NS_CHAR}"#")|(":"{NS_PLAIN_SAFE}))
-NS_PLAIN_FIRST=({NS_CHAR_MINUS_C_INDICATOR}|([?:-]{NS_PLAIN_SAFE}))
-NB_NS_PLAIN_IN_LINE=({OPTIONAL_WHITESPACE}{NS_PLAIN_CHAR})*
-NS_PLAIN_ONE_LINE={NS_PLAIN_FIRST}{NB_NS_PLAIN_IN_LINE}
+NS_PLAIN_CHAR__IN=({NS_PLAIN_SAFE_IN__MINUS_COLON_AND_HASH}|({NS_CHAR}"#")|(":"{NS_PLAIN_SAFE_IN}))
+NS_PLAIN_FIRST__IN=({NS_CHAR__MINUS_C_INDICATOR}|([?:-]{NS_PLAIN_SAFE_IN}))
+NB_NS_PLAIN_IN_LINE__IN=({OPTIONAL_WHITESPACE}{NS_PLAIN_CHAR__IN})*
+NS_PLAIN_ONE_LINE__IN={NS_PLAIN_FIRST__IN}{NB_NS_PLAIN_IN_LINE__IN}
 
-NS_ANCHOR_CHAR=({NS_CHAR_MINUS_C_FLOW_INDICATOR})
+
+NS_PLAIN_CHAR__OUT=({NS_PLAIN_SAFE_OUT__MINUS_COLON_AND_HASH}|({NS_CHAR}"#")|(":"{NS_PLAIN_SAFE_OUT}))
+NS_PLAIN_FIRST__OUT=({NS_CHAR__MINUS_C_INDICATOR}|([?:-]{NS_PLAIN_SAFE_OUT}))
+NB_NS_PLAIN_IN_LINE__OUT=({OPTIONAL_WHITESPACE}{NS_PLAIN_CHAR__OUT})*
+NS_PLAIN_ONE_LINE__OUT={NS_PLAIN_FIRST__OUT}{NB_NS_PLAIN_IN_LINE__OUT}
+
+
+B_BREAK={NEW_LINE}
+B_NON_CONTENT={B_BREAK}
+B_AS_SPACE={B_BREAK}
+B_AS_LINE_FEED={B_BREAK}
+L_EMPTY=({WHITESPACE}{B_AS_LINE_FEED})
+B_L_TRIMMED={B_NON_CONTENT}{L_EMPTY}+
+B_L_FOLDED={B_L_TRIMMED}|{B_AS_SPACE}
+
+S_FLOW_LINE_PREFIX={WHITESPACE}
+
+S_FLOW_FOLDED={OPTIONAL_WHITESPACE}{B_L_FOLDED}{S_FLOW_LINE_PREFIX}
+
+NS_PLAIN_NEXT_LINE__IN={NS_PLAIN_CHAR__IN}{NB_NS_PLAIN_IN_LINE__IN}
+S_NS_PLAIN_NEXT_LINE__IN=({S_FLOW_FOLDED}{NS_PLAIN_NEXT_LINE__IN})
+NS_PLAIN_MULTI_LINE__IN={NS_PLAIN_ONE_LINE__IN}{S_NS_PLAIN_NEXT_LINE__IN}*
+
+NS_PLAIN_NEXT_LINE__OUT={NS_PLAIN_CHAR__OUT}{NB_NS_PLAIN_IN_LINE__OUT}
+S_NS_PLAIN_NEXT_LINE__OUT=({S_FLOW_FOLDED}{NS_PLAIN_NEXT_LINE__OUT})
+NS_PLAIN_MULTI_LINE__OUT={NS_PLAIN_ONE_LINE__OUT}{S_NS_PLAIN_NEXT_LINE__OUT}*
+
+
+NS_ANCHOR_CHAR=({NS_CHAR__MINUS_C_FLOW_INDICATOR})
 NS_ANCHOR_NAME={NS_ANCHOR_CHAR}+
 
 C_QUOTED_QUOTE=({APOS_CHAR}{APOS_CHAR})
-NB_SINGLE_CHAR=({C_QUOTED_QUOTE}|{NB_JSON_MINUS_SINGLE_QUOTE})
+NB_SINGLE_CHAR=({C_QUOTED_QUOTE}|{NB_JSON__MINUS_SINGLE_QUOTE})
 NB_SINGLE_ONE_LINE={NB_SINGLE_CHAR}*
-NB_SINGLE_MULTI_LINE=(C_QUOTED_QUOTE}|{NB_JSON_MINUS_SINGLE_QUOTE}|{NEW_LINE})*
+NB_SINGLE_MULTI_LINE=(C_QUOTED_QUOTE}|{NB_JSON__MINUS_SINGLE_QUOTE}|{NEW_LINE})*
 C_SINGLE_QUOTED_key={APOS_CHAR}{NB_SINGLE_ONE_LINE}{APOS_CHAR}
 C_SINGLE_QUOTED_flow={APOS_CHAR}{NB_SINGLE_MULTI_LINE}{APOS_CHAR}
 
-NB_DOUBLE_CHAR=({NB_JSON_MINUS_DOUBLE_QUOTE}|{BACKSLASH_CHAR}{QUOTE_CHAR})
+NB_DOUBLE_CHAR=({NB_JSON__MINUS_DOUBLE_QUOTE}|{BACKSLASH_CHAR}{QUOTE_CHAR})
 NB_DOUBLE_ONE_LINE={NB_DOUBLE_CHAR}*
-NB_DOUBLE_MULTI_LINE=({NB_JSON_MINUS_DOUBLE_QUOTE}|{BACKSLASH_CHAR}{QUOTE_CHAR}|{NEW_LINE})*
+NB_DOUBLE_MULTI_LINE=({NB_JSON__MINUS_DOUBLE_QUOTE}|{BACKSLASH_CHAR}{QUOTE_CHAR}|{NEW_LINE})*
 C_DOUBLE_QUOTED_key={QUOTE_CHAR}{NB_DOUBLE_ONE_LINE}{QUOTE_CHAR}
 C_DOUBLE_QUOTED_flow={QUOTE_CHAR}{NB_DOUBLE_MULTI_LINE}{QUOTE_CHAR}
 
@@ -117,8 +144,7 @@ C_DIRECTIVES_END=^"---"
 C_DOCUMENT_END=^"..."
 
 
-%state BLOCK_IN, BLOCK_OUT, BLOCK_KEY
-%state FLOW_IN, FLOW_OUT, FLOW_KEY
+%state BLOCK, FLOW
 %state DIRECTIVE
 %state BLOCK_SCALAR_HEADER, BLOCK_SCALAR
 %state ANCHOR_ALIAS
@@ -126,49 +152,57 @@ C_DOCUMENT_END=^"..."
 
 %%
 
-<YYINITIAL, BLOCK_IN>
+<YYINITIAL, BLOCK, FLOW>
                 ^{WHITESPACE}           { currentLineIndent = yy_buffer_end; return YamlTokenType.INDENT; }
-<YYINITIAL, BLOCK_IN>
+<YYINITIAL, BLOCK, FLOW>
                 {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
-<YYINITIAL, BLOCK_IN>
+<YYINITIAL, BLOCK, FLOW>
                 {NEW_LINE}              { currentLineIndent = 0; return YamlTokenType.NEW_LINE; }
 
 <YYINITIAL>     ^"%"                    { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
-<YYINITIAL>     {C_DIRECTIVES_END}      { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.DIRECTIVES_END; }
-<YYINITIAL>     .                       { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.SYNTHETIC_DIRECTIVES_END; }
+<YYINITIAL>     {C_DIRECTIVES_END}      { currentLineIndent = 0; yybegin(BLOCK); return YamlTokenType.DIRECTIVES_END; }
+<YYINITIAL>     .                       { currentLineIndent = 0; yybegin(BLOCK); return YamlTokenType.SYNTHETIC_DIRECTIVES_END; }
 
-<YYINITIAL, BLOCK_IN, BLOCK_SCALAR>
+<YYINITIAL, BLOCK, BLOCK_SCALAR>
                 {C_DOCUMENT_END}        { yybegin(YYINITIAL); return YamlTokenType.DOCUMENT_END; }
 
 
-<BLOCK_IN>      {C_DIRECTIVES_END}      { return YamlTokenType.DIRECTIVES_END; }
-<BLOCK_IN>      {NS_PLAIN_ONE_LINE}     { return YamlTokenType.NS_PLAIN; }
+<BLOCK>         {C_DIRECTIVES_END}      { return YamlTokenType.DIRECTIVES_END; }
 
-<BLOCK_IN>      "&"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
-<BLOCK_IN>      "*"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
-<BLOCK_IN>      "!"                     { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
-<BLOCK_IN>      "!<"                    { yybegin(VERBATIM_TAG); return YamlTokenType.BANG_LT; }
-<BLOCK_IN>      ">"                     { BeginBlockScalar(); return YamlTokenType.GT; }
-<BLOCK_IN>      "|"                     { BeginBlockScalar(); return YamlTokenType.PIPE; }
-<BLOCK_IN>      ":"                     { return YamlTokenType.COLON; }
-<BLOCK_IN>      ","                     { return YamlTokenType.COMMA; }
-<BLOCK_IN>      "-"                     { return YamlTokenType.MINUS; }
-<BLOCK_IN>      "<"                     { return YamlTokenType.LT; }
-<BLOCK_IN>      "{"                     { return YamlTokenType.LBRACE; }
-<BLOCK_IN>      "}"                     { return YamlTokenType.RBRACE; }
-<BLOCK_IN>      "["                     { return YamlTokenType.LBRACK; }
-<BLOCK_IN>      "]"                     { return YamlTokenType.RBRACK; }
-<BLOCK_IN>      "%"                     { return YamlTokenType.PERCENT; }
-<BLOCK_IN>      "?"                     { return YamlTokenType.QUESTION; }
+<BLOCK>         {NS_PLAIN_ONE_LINE__OUT}  { return YamlTokenType.NS_PLAIN_ONE_LINE; }
+<BLOCK>         {NS_PLAIN_ONE_LINE__OUT}{OPTIONAL_WHITESPACE}":"
+                                          { return YamlTokenType._INTERNAL_BLOCK_KEY; }
 
-<YYINITIAL, DIRECTIVE, BLOCK_SCALAR_HEADER, BLOCK_IN>
+
+<BLOCK, FLOW>   "&"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
+<BLOCK, FLOW>   "*"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
+<BLOCK, FLOW>   "!"                     { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }
+<BLOCK, FLOW>   "!<"                    { yybegin(VERBATIM_TAG); return YamlTokenType.BANG_LT; }
+<BLOCK, FLOW>   ">"                     { BeginBlockScalar(); return YamlTokenType.GT; }
+<BLOCK, FLOW>   "|"                     { BeginBlockScalar(); return YamlTokenType.PIPE; }
+<BLOCK, FLOW>   ":"                     { return YamlTokenType.COLON; }
+<BLOCK, FLOW>   ","                     { return YamlTokenType.COMMA; }
+<BLOCK, FLOW>   "-"                     { return YamlTokenType.MINUS; }
+<BLOCK, FLOW>   "<"                     { return YamlTokenType.LT; }
+<BLOCK, FLOW>   "{"                     { PushFlowIndicator(); return YamlTokenType.LBRACE; }
+<BLOCK, FLOW>   "}"                     { PopFlowIndicator(); return YamlTokenType.RBRACE; }
+<BLOCK, FLOW>   "["                     { PushFlowIndicator(); return YamlTokenType.LBRACK; }
+<BLOCK, FLOW>   "]"                     { PopFlowIndicator(); return YamlTokenType.RBRACK; }
+<BLOCK, FLOW>   "%"                     { return YamlTokenType.PERCENT; }
+<BLOCK, FLOW>   "?"                     { return YamlTokenType.QUESTION; }
+
+<YYINITIAL, DIRECTIVE, BLOCK_SCALAR_HEADER, BLOCK>
                 {C_NB_COMMENT_TEXT}     { return YamlTokenType.COMMENT; }
 
-<BLOCK_IN>      {C_SINGLE_QUOTED_key}   { return YamlTokenType.C_SINGLE_QUOTED_SINGLE_LINE; }
-<BLOCK_IN>      {C_SINGLE_QUOTED_flow}  { return YamlTokenType.C_SINGLE_QUOTED_MULTILINE; }
-<BLOCK_IN>      {C_DOUBLE_QUOTED_key}   { return YamlTokenType.C_DOUBLE_QUOTED_SINGLE_LINE; }
-<BLOCK_IN>      {C_DOUBLE_QUOTED_flow}  { return YamlTokenType.C_DOUBLE_QUOTED_MULTILINE; }
-<BLOCK_IN>      {NS_PLAIN_ONE_LINE}     { return YamlTokenType.NS_PLAIN; }
+<BLOCK, FLOW>   {C_SINGLE_QUOTED_key}   { return YamlTokenType.C_SINGLE_QUOTED_SINGLE_LINE; }
+<BLOCK, FLOW>   {C_SINGLE_QUOTED_flow}  { return YamlTokenType.C_SINGLE_QUOTED_MULTILINE; }
+<BLOCK, FLOW>   {C_DOUBLE_QUOTED_key}   { return YamlTokenType.C_DOUBLE_QUOTED_SINGLE_LINE; }
+<BLOCK, FLOW>   {C_DOUBLE_QUOTED_flow}  { return YamlTokenType.C_DOUBLE_QUOTED_MULTILINE; }
+
+
+<FLOW>          {NS_PLAIN_ONE_LINE__IN}   { return YamlTokenType.NS_PLAIN_ONE_LINE; }
+<FLOW>          {NS_PLAIN_ONE_LINE__IN}{WHITESPACE}":"
+                                          { return YamlTokenType._INTERNAL_FLOW_KEY; }
 
 
 <DIRECTIVE>     {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
@@ -198,24 +232,23 @@ C_DOCUMENT_END=^"..."
                                         { return HandleBlockScalarLine(); }
 
 
-<ANCHOR_ALIAS>  {WHITESPACE}            { yybegin(BLOCK_IN); return YamlTokenType.WHITESPACE; }
-<ANCHOR_ALIAS>  {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
-<ANCHOR_ALIAS>  {NS_ANCHOR_NAME}        { yybegin(BLOCK_IN); return YamlTokenType.NS_ANCHOR_NAME; }
+<ANCHOR_ALIAS>  {WHITESPACE}            { ResetBlockFlowState(); return YamlTokenType.WHITESPACE; }
+<ANCHOR_ALIAS>  {NEW_LINE}              { currentLineIndent = 0; ResetBlockFlowState(); return YamlTokenType.NEW_LINE; }
+<ANCHOR_ALIAS>  {NS_ANCHOR_NAME}        { ResetBlockFlowState(); return YamlTokenType.NS_ANCHOR_NAME; }
 
 
 <SHORTHAND_TAG, VERBATIM_TAG>
-                {WHITESPACE}            { yybegin(BLOCK_IN); return YamlTokenType.WHITESPACE; }
+                {WHITESPACE}            { ResetBlockFlowState(); return YamlTokenType.WHITESPACE; }
 <SHORTHAND_TAG, VERBATIM_TAG>
-                {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
+                {NEW_LINE}              { currentLineIndent = 0; ResetBlockFlowState(); return YamlTokenType.NEW_LINE; }
 
 <SHORTHAND_TAG> "!"                     { return YamlTokenType.BANG; }
-<SHORTHAND_TAG> {NS_TAG_CHAR}+          { yybegin(BLOCK_IN); return YamlTokenType.NS_TAG_CHARS; }
+<SHORTHAND_TAG> {NS_TAG_CHAR}+          { ResetBlockFlowState(); return YamlTokenType.NS_TAG_CHARS; }
 
 
-<VERBATIM_TAG>  {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_IN); return YamlTokenType.NEW_LINE; }
 <VERBATIM_TAG>  {NS_URI_CHAR}+          { return YamlTokenType.NS_URI_CHARS; }
-<VERBATIM_TAG>  ">"                     { yybegin(BLOCK_IN); return YamlTokenType.GT; }
+<VERBATIM_TAG>  ">"                     { ResetBlockFlowState(); return YamlTokenType.GT; }
 
 
-<DIRECTIVE,BLOCK_IN,BLOCK_OUT,BLOCK_KEY,FLOW_IN,FLOW_OUT,FLOW_KEY,ANCHOR_ALIAS,SHORTHAND_TAG,VERBATIM_TAG>
+<DIRECTIVE, BLOCK, FLOW, BLOCK_SCALAR_HEADER, BLOCK_SCALAR, ANCHOR_ALIAS, SHORTHAND_TAG, VERBATIM_TAG>
                 .                       { return YamlTokenType.BAD_CHARACTER; }

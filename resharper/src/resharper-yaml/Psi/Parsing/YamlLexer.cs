@@ -27,6 +27,13 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         // _locateToken is called, we'll start to lex the document content
         RewindToken();
       }
+      else if (token == YamlTokenType._INTERNAL_BLOCK_KEY || token == YamlTokenType._INTERNAL_FLOW_KEY)
+      {
+        // Remove the trailing COLON and whitespace
+        RewindChar();
+        RewindWhitespace();
+        return YamlTokenType.NS_PLAIN_ONE_LINE;
+      }
 
       return token;
     }
