@@ -174,6 +174,8 @@ C_DOCUMENT_END=^"..."
                                           { return YamlTokenType._INTERNAL_BLOCK_KEY; }
 
 
+<BLOCK, FLOW>   "@"                     { return YamlTokenType.AT; }
+<BLOCK, FLOW>   "`"                     { return YamlTokenType.BACKTICK; }
 <BLOCK, FLOW>   "&"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.AMP; }
 <BLOCK, FLOW>   "*"                     { yybegin(ANCHOR_ALIAS); return YamlTokenType.ASTERISK; }
 <BLOCK, FLOW>   "!"                     { yybegin(SHORTHAND_TAG); return YamlTokenType.BANG; }

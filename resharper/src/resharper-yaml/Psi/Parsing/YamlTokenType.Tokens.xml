@@ -23,7 +23,9 @@
 
   <Tokens NodeType="FixedTokenNodeType">
     <Token name="AMP" representation="&amp;" />
+    <Token name="AT" representation="@" />
     <Token name="ASTERISK" representation="*" />
+    <Token name="BACKTICK" representation="`" />
     <Token name="BANG" representation="!" />
     <Token name="BANG_LT" representation="!&lt;" />
     <Token name="COLON" representation=":" />
