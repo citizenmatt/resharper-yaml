@@ -1,0 +1,16 @@
+﻿Language: PsiLanguageType:YAML
+IYamlFile
+  ErrorElement:Not yet handled
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:commercial-at)
+    YamlTokenType+FixedTokenElement(type:COLON, text::)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    YamlTokenType+FixedTokenElement(type:AT, text:@)
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:text)
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:grave-accent)
+    YamlTokenType+FixedTokenElement(type:COLON, text::)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    YamlTokenType+FixedTokenElement(type:BACKTICK, text:`)
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:text)
+  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+

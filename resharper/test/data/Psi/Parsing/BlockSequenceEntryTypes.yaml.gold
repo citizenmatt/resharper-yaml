@@ -1,0 +1,39 @@
+﻿Language: PsiLanguageType:YAML
+IYamlFile
+  ErrorElement:Not yet handled
+    YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    Comment(type:COMMENT, text:# Empty) spaces: "# Empty"
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    YamlTokenType+FixedTokenElement(type:PIPE, text:|)
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+GenericTokenElement(type:INDENT, text: )
+    YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:block node)
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:one)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    Comment(type:COMMENT, text:# Compact) spaces: "# Compact"
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+GenericTokenElement(type:INDENT, text:  )
+    YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:two)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    Comment(type:COMMENT, text:# sequence) spaces: "# sequence"
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:one)
+    YamlTokenType+FixedTokenElement(type:COLON, text::)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:two)
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    Comment(type:COMMENT, text:# Compact mapping) spaces: "# Compact mapping"
+  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+

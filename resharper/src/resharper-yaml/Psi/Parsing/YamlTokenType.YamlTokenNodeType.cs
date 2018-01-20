@@ -12,9 +12,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
   public static partial class YamlTokenType
   {
-    public abstract class YamlTokenNodeType : TokenNodeType, IYamlTokenNodeType
+    private abstract class YamlTokenNodeType : TokenNodeType, IYamlTokenNodeType
     {
-      public YamlTokenNodeType(string s, int index)
+      protected YamlTokenNodeType(string s, int index)
         : base(s, index)
       {
       }
@@ -24,6 +24,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         throw new InvalidOperationException($"TokenNodeType.Create needs to be overridden in {GetType()}");
       }
 
+      public override bool IsFiltered => false;
       public override bool IsWhitespace => false; // this == WHITESPACE || this == NEW_LINE;
       public override bool IsComment => false;
       public override bool IsStringLiteral => false; // this == STRING_LITERAL

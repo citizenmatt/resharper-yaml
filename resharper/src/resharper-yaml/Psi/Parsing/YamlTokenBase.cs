@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing.Tree;
+using JetBrains.ReSharper.Plugins.Yaml.Psi.Tree;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
 using JetBrains.ReSharper.Psi.Parsing;
@@ -11,20 +11,20 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
   {
     public override PsiLanguageType Language => LanguageFromParent;
 
-//    public virtual void Accept(TreeNodeVisitor visitor)
-//    {
-//      visitor.VisitNode(this);
-//    }
+    public virtual void Accept(TreeNodeVisitor visitor)
+    {
+      visitor.VisitNode(this);
+    }
 
-//    public virtual void Accept<TContext>(TreeNodeVisitor<TContext> visitor, TContext context)
-//    {
-//      visitor.VisitNode(this, context);
-//    }
+    public virtual void Accept<TContext>(TreeNodeVisitor<TContext> visitor, TContext context)
+    {
+      visitor.VisitNode(this, context);
+    }
 
-//    public virtual TResult Accept<TContext, TResult>(TreeNodeVisitor<TContext, TResult> visitor, TContext context)
-//    {
-//      return visitor.VisitNode(this, context);
-//    }
+    public virtual TResult Accept<TContext, TResult>(TreeNodeVisitor<TContext, TResult> visitor, TContext context)
+    {
+      return visitor.VisitNode(this, context);
+    }
 
     public TokenNodeType GetTokenType() => (TokenNodeType) NodeType;
 

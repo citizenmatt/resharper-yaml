@@ -25,6 +25,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         return new Whitespace(token);
       }
 
+      public override bool IsFiltered => true;
       public override bool IsWhitespace => true;
       public override string TokenRepresentation => " ";
     }
@@ -46,6 +47,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         return new NewLine(token);
       }
 
+      public override bool IsFiltered => true;
       public override bool IsWhitespace => true;
       public override string TokenRepresentation => @"\r\n";
     }
