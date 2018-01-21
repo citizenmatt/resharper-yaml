@@ -65,13 +65,66 @@ options {
   generateWorkingPsi;
 }
 
+
 errorhandling yamlFile
 options {
   stubBase="YamlFileElement";
 }
 :
-  unparsedError
+  yamlDocument<DOCUMENT, Documents>*
 ;
+
+yamlDocument
+:
+  directives<DIRECTIVES, Directives>?
+  eatUpToDocEndMarker
+  // TODO: Documents must either be separated with one or more document end markers or directive end marker
+  // We can't easily capture that without using interface, and I don't want to do that
+  DOCUMENT_END<DOCUMENT_END, DocumentEndMarker>*
+;
+
+
+directives
+: 
+  (
+    directive<DIRECTIVE, Directive>+
+    DIRECTIVES_END<DIRECTIVES_END, DirectivesEndMarker>+
+  )
+  | DIRECTIVES_END<DIRECTIVES_END, DirectivesEndMarker>*
+;
+
+directive
+:
+  PERCENT<PERCENT, Percent>
+  NS_CHARS<NAME, Name>
+  BANG<BANG, Bang>? // E.g. ``%TAG ! foo`. Might be worth parsing TAG as its own directive type
+  NS_CHARS<PARAMETERS, Parameters>*
+;
+
+
+abstract eatUpToDocEndMarker
+options {
+  interfaceName = "JetBriains.ReSharper.Psi.Tree.IErrorElement";
+  elementType = "ERROR_ELEMENT";
+}
+:
+  // Content first tokens
+  INDENT
+  | MINUS
+  | LBRACE
+  | LBRACK
+  | GT
+  | BANG
+  | BANG_LT
+  | PIPE
+  | NS_PLAIN_ONE_LINE
+  | NS_PLAIN_MULTI_LINE
+  | C_SINGLE_QUOTED_SINGLE_LINE
+  | C_SINGLE_QUOTED_MULTILINE
+  | C_DOUBLE_QUOTED_SINGLE_LINE
+  | C_DOUBLE_QUOTED_MULTILINE
+;
+
 
 abstract unparsedError
 options {
@@ -80,5 +133,18 @@ options {
 }
 :
   // Whatever
-  INDENT<INDENT, Indent>
+  INDENT
+  | MINUS
+  | LBRACE
+  | LBRACK
+  | GT
+  | BANG
+  | BANG_LT
+  | PIPE
+  | NS_PLAIN_ONE_LINE
+  | NS_PLAIN_MULTI_LINE
+  | C_SINGLE_QUOTED_SINGLE_LINE
+  | C_SINGLE_QUOTED_MULTILINE
+  | C_DOUBLE_QUOTED_SINGLE_LINE
+  | C_DOUBLE_QUOTED_MULTILINE
 ;

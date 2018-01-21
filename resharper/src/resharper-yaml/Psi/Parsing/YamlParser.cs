@@ -102,6 +102,14 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       YamlMissingTokensInserter.Run(root, myOriginalLexer, this, interruptChecker, intern);
     }
 
+    public override TreeElement ParseEatUpToDocEndMarker()
+    {
+      var error = TreeElementFactory.CreateErrorElement("Not yet handled");
+      while (myLexer.TokenType != null && myLexer.TokenType != YamlTokenType.DOCUMENT_END)
+        Skip(error);
+      return error;
+    }
+
     public override TreeElement ParseUnparsedError()
     {
       throw new SyntaxError("Not yet handled");

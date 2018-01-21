@@ -1,6 +1,6 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
-  ErrorElement:Not yet handled
+  ErrorElement:Unexpected token
     YamlTokenType+FixedTokenElement(type:QUESTION, text:?)
     Whitespace(type:WHITESPACE, text: ) spaces: " "
     YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:explicit key)
@@ -26,7 +26,7 @@ IYamlFile
     YamlTokenType+FixedTokenElement(type:MINUS, text:-)
     Whitespace(type:WHITESPACE, text: ) spaces: " "
     YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:two)
-    Whitespace(type:WHITESPACE, text: ) spaces: " "
-    Comment(type:COMMENT, text:# block value) spaces: "# block value"
+  Whitespace(type:WHITESPACE, text: ) spaces: " "
+  Comment(type:COMMENT, text:# block value) spaces: "# block value"
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
 

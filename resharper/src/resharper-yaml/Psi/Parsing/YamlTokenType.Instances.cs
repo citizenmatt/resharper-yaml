@@ -15,7 +15,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     public static readonly TokenNodeType NEW_LINE = new NewLineNodeType(LAST_GENERATED_TOKEN_TYPE_INDEX + 12);
     public static readonly TokenNodeType WHITESPACE = new WhitespaceNodeType(LAST_GENERATED_TOKEN_TYPE_INDEX + 13);
-    public static readonly TokenNodeType INDENT = new GenericTokenNodeType("INDENT", LAST_GENERATED_TOKEN_TYPE_INDEX + 14, "INDENT");
+    public static readonly TokenNodeType INDENT = new IndentNodeType(LAST_GENERATED_TOKEN_TYPE_INDEX + 14);
 
     public static readonly TokenNodeType COMMENT = new CommentTokenNodeType(LAST_GENERATED_TOKEN_TYPE_INDEX + 15);
 

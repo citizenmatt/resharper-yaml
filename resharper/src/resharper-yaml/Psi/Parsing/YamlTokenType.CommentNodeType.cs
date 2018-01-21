@@ -27,7 +27,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         return new Comment(token);
       }
 
-      // NOTE: Not filtered
+      // TODO: Perhaps comments shouldn't be filtered?
+      // The spec shows where they are allowed to be
+      public override bool IsFiltered => true;
       public override bool IsComment => true;
       public override string TokenRepresentation => "# comment";
     }

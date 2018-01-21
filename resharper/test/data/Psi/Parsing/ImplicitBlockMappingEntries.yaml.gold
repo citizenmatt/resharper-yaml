@@ -1,20 +1,21 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
-  ErrorElement:Not yet handled
-    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:plain key)
-    YamlTokenType+FixedTokenElement(type:COLON, text::)
-    Whitespace(type:WHITESPACE, text: ) spaces: " "
-    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:in-line value)
-    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-    YamlTokenType+FixedTokenElement(type:COLON, text::)
-    Whitespace(type:WHITESPACE, text: ) spaces: " "
-    Comment(type:COMMENT, text:# Both empty) spaces: "# Both empty"
-    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-    YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"quoted key")
-    YamlTokenType+FixedTokenElement(type:COLON, text::)
-    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-    YamlTokenType+FixedTokenElement(type:MINUS, text:-)
-    Whitespace(type:WHITESPACE, text: ) spaces: " "
-    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:entry)
+  IYamlDocument
+    ErrorElement:Not yet handled
+      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:plain key)
+      YamlTokenType+FixedTokenElement(type:COLON, text::)
+      Whitespace(type:WHITESPACE, text: ) spaces: " "
+      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:in-line value)
+      NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+      YamlTokenType+FixedTokenElement(type:COLON, text::)
+      Whitespace(type:WHITESPACE, text: ) spaces: " "
+      Comment(type:COMMENT, text:# Both empty) spaces: "# Both empty"
+      NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+      YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"quoted key")
+      YamlTokenType+FixedTokenElement(type:COLON, text::)
+      NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+      YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+      Whitespace(type:WHITESPACE, text: ) spaces: " "
+      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:entry)
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
 

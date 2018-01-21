@@ -51,5 +51,28 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       public override bool IsWhitespace => true;
       public override string TokenRepresentation => @"\r\n";
     }
+
+    private sealed class IndentNodeType : YamlTokenNodeType
+    {
+      public IndentNodeType(int index)
+        : base("INDENT", index)
+      {
+      }
+
+      public override LeafElementBase Create(IBuffer buffer, TreeOffset startOffset, TreeOffset endOffset)
+      {
+        return new GenericTokenElement(this, buffer.GetText(new TextRange(startOffset.Offset, endOffset.Offset)));
+      }
+
+      public override LeafElementBase Create(string token)
+      {
+        return new GenericTokenElement(this, token);
+      }
+
+      // TODO: Not a good idea to filter indents. We'll get back round to this...
+      public override bool IsFiltered => true;
+      public override bool IsWhitespace => true;
+      public override string TokenRepresentation => @" ";
+    }
   }
 }
