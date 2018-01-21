@@ -97,7 +97,6 @@ directive
 :
   PERCENT<PERCENT, Percent>
   NS_CHARS<NAME, Name>
-  BANG<BANG, Bang>? // E.g. ``%TAG ! foo`. Might be worth parsing TAG as its own directive type
   NS_CHARS<PARAMETERS, Parameters>*
 ;
 
