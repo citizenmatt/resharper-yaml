@@ -1,8 +1,9 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
   IYamlDocument
-    ErrorElement:Not yet handled
+    IPlainScalarNode
       YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:sequence)
+    ErrorElement:Not yet handled
       YamlTokenType+FixedTokenElement(type:COLON, text::)
       Whitespace(type:WHITESPACE, text: ) spaces: " "
       YamlTokenType+FixedTokenElement(type:BANG, text:!)

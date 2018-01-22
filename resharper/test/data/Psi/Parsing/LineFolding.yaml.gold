@@ -3,9 +3,11 @@ IYamlFile
   Comment(type:COMMENT, text:# Folding indicator followed by chomping indicator) spaces: "# Folding indicator followed by chomping indicator"
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
   IYamlDocument
-    ErrorElement:Not yet handled
+    IFoldedScalarNode
       YamlTokenType+FixedTokenElement(type:GT, text:>)
-      YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+      IBlockHeader
+        IChompingIndicator
+          YamlTokenType+FixedTokenElement(type:MINUS, text:-)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+GenericTokenElement(type:INDENT, text:  )
       YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:trimmed)

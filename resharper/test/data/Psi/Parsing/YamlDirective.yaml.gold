@@ -15,7 +15,7 @@ IYamlFile
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+FixedTokenElement(type:DIRECTIVES_END, text:---)
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-    ErrorElement:Not yet handled
+    IDoubleQuotedScalarNode
       YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"foo")
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
 

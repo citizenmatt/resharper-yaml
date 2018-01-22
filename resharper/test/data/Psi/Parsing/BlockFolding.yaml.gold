@@ -1,7 +1,7 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
   IYamlDocument
-    ErrorElement:Not yet handled
+    IFoldedScalarNode
       YamlTokenType+FixedTokenElement(type:GT, text:>)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+GenericTokenElement(type:INDENT, text:  )

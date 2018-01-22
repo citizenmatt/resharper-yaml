@@ -66,6 +66,12 @@ options {
 }
 
 
+// **************************************************************************
+//
+// File (streams and documents)
+//
+// **************************************************************************
+
 errorhandling yamlFile
 options {
   stubBase="YamlFileElement";
@@ -77,12 +83,22 @@ options {
 yamlDocument
 :
   directives<DIRECTIVES, Directives>?
-  eatUpToDocEndMarker
-  // TODO: Documents must either be separated with one or more document end markers or directive end marker
-  // We can't easily capture that without using interface, and I don't want to do that
+  (
+    blockNode?
+    | eatUpToDocEndMarker
+  )*
+  // Documents must be separated by either one or more document end markers, or a directives end marker
+  // We can't easily represent that here as it requires knowledge of the following token
+  // TODO: Add an inspection to make sure there is correct separation of documents
   DOCUMENT_END<DOCUMENT_END, DocumentEndMarker>*
 ;
 
+
+// **************************************************************************
+//
+// Directives
+//
+// **************************************************************************
 
 directives
 : 
@@ -101,6 +117,146 @@ directive
 ;
 
 
+// **************************************************************************
+//
+// Nodes
+//
+// **************************************************************************
+
+private blockNode
+:
+  blockInBlockNode
+  | flowInBlockNode
+;
+
+private blockInBlockNode
+:
+  blockScalarNode
+  // | blockCollectionNode
+;
+
+private blockScalarNode
+:
+  literalScalarNode
+  | foldedScalarNode
+;
+
+private flowInBlockNode
+:
+  aliasNode
+  | plainScalarNode
+  | singleQuotedScalarNode
+  | doubleQuotedScalarNode
+  // | flowSequenceNode
+  // | flowMappingNode
+;
+
+
+// **************************************************************************
+//
+// Node interface
+//
+// **************************************************************************
+
+interface node
+:
+  // Block nodes
+  literalScalarNode
+  | foldedScalarNode
+
+  // Flow nodes
+  | aliasNode
+  | plainScalarNode
+  | singleQuotedScalarNode
+  | doubleQuotedScalarNode
+;
+
+
+// **************************************************************************
+//
+// Block nodes
+//
+// **************************************************************************
+
+blockHeader
+:
+  (
+    chompingIndicator<CHOMP, ChompingIndicator>
+    indentationIndicator<INDENTATION, IndentationIndicator>?
+  )
+  |
+  (
+    indentationIndicator<INDENTATION, IndentationIndicator>
+    chompingIndicator<CHOMP, ChompingIndicator>?
+  )
+;
+
+chompingIndicator
+:
+  PLUS<PLUS, Plus>
+  | MINUS<MINUS, Minus>
+;
+
+indentationIndicator
+:
+  NS_DEC_DIGIT<DIGIT, Digit>
+;
+
+literalScalarNode
+:
+  PIPE<INDICATOR, PipeIndicator>
+  blockHeader<HEADER, BlockHeader>?
+  SCALAR_TEXT<TEXT, Text>+
+;
+
+foldedScalarNode
+:
+  GT<INDICATOR, GtIndicator>
+  blockHeader<HEADER, BlockHeader>?
+  SCALAR_TEXT<TEXT, Text>+
+;
+
+
+
+// **************************************************************************
+//
+// Flow nodes
+//
+// **************************************************************************
+
+aliasNode
+:
+  ASTERISK<ASTERISK, Asterisk>
+  NS_ANCHOR_NAME<ANCHOR_NAME, AnchorName>
+;
+
+plainScalarNode
+:
+  // TODO: Handle indents
+  NS_PLAIN_ONE_LINE<SINGLE_LINE, SingleLine>
+  | NS_PLAIN_MULTI_LINE<MULTI_LINE, MultiLine>
+;
+
+singleQuotedScalarNode
+:
+  C_SINGLE_QUOTED_SINGLE_LINE<SINGLE_LINE, SingleLine>
+  | C_SINGLE_QUOTED_MULTILINE<MULTI_LINE, MultiLine>
+;
+
+doubleQuotedScalarNode
+:
+  C_DOUBLE_QUOTED_SINGLE_LINE<SINGLE_LINE, SingleLine>
+  | C_DOUBLE_QUOTED_MULTILINE<MULTI_LINE, MultiLine>
+;
+
+
+
+// **************************************************************************
+//
+// Misc
+//
+// **************************************************************************
+
 abstract eatUpToDocEndMarker
 options {
   interfaceName = "JetBriains.ReSharper.Psi.Tree.IErrorElement";
@@ -109,19 +265,15 @@ options {
 :
   // Content first tokens
   INDENT
+  | COLON
   | MINUS
   | LBRACE
   | LBRACK
   | GT
   | BANG
   | BANG_LT
-  | PIPE
   | NS_PLAIN_ONE_LINE
   | NS_PLAIN_MULTI_LINE
-  | C_SINGLE_QUOTED_SINGLE_LINE
-  | C_SINGLE_QUOTED_MULTILINE
-  | C_DOUBLE_QUOTED_SINGLE_LINE
-  | C_DOUBLE_QUOTED_MULTILINE
 ;
 
 
@@ -133,17 +285,13 @@ options {
 :
   // Whatever
   INDENT
+  | COLON
   | MINUS
   | LBRACE
   | LBRACK
   | GT
   | BANG
   | BANG_LT
-  | PIPE
   | NS_PLAIN_ONE_LINE
   | NS_PLAIN_MULTI_LINE
-  | C_SINGLE_QUOTED_SINGLE_LINE
-  | C_SINGLE_QUOTED_MULTILINE
-  | C_DOUBLE_QUOTED_SINGLE_LINE
-  | C_DOUBLE_QUOTED_MULTILINE
 ;

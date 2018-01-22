@@ -22,7 +22,6 @@ IYamlFile
   IYamlDocument
     IDirectives
       YamlTokenType+FixedTokenElement(type:DIRECTIVES_END, text:---)
-    ErrorElement:Not yet handled
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
     Comment(type:COMMENT, text:# Empty) spaces: "# Empty"
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"

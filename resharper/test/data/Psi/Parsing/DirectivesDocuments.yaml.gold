@@ -10,7 +10,7 @@ IYamlFile
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+FixedTokenElement(type:DIRECTIVES_END, text:---)
     Whitespace(type:WHITESPACE, text: ) spaces: " "
-    ErrorElement:Not yet handled
+    ILiteralScalarNode
       YamlTokenType+FixedTokenElement(type:PIPE, text:|)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:%!PS-Adobe-2.0  # !!str)
@@ -24,7 +24,6 @@ IYamlFile
         YamlTokenType+GenericTokenElement(type:NS_CHARS, text:YAML1.2)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+FixedTokenElement(type:DIRECTIVES_END, text:---)
-    ErrorElement:Not yet handled
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
     Comment(type:COMMENT, text:# Empty) spaces: "# Empty"
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"

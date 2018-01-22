@@ -1,9 +1,10 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
   IYamlDocument
-    ErrorElement:Not yet handled
+    IPlainScalarNode
       YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:Bare)
-      NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    IPlainScalarNode
       YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:document)
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
     YamlTokenType+FixedTokenElement(type:DOCUMENT_END, text:...)
@@ -13,7 +14,7 @@ IYamlFile
     YamlTokenType+FixedTokenElement(type:DOCUMENT_END, text:...)
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
   IYamlDocument
-    ErrorElement:Not yet handled
+    ILiteralScalarNode
       YamlTokenType+FixedTokenElement(type:PIPE, text:|)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:%!PS-Adobe-2.0 # Not the first line - should be string)

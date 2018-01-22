@@ -1,9 +1,10 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
   IYamlDocument
-    ErrorElement:Not yet handled
+    ISingleQuotedScalarNode
       YamlTokenType+GenericTokenElement(type:C_SINGLE_QUOTED_SINGLE_LINE, text:'implicit block key')
-      Whitespace(type:WHITESPACE, text: ) spaces: " "
+    Whitespace(type:WHITESPACE, text: ) spaces: " "
+    ErrorElement:Not yet handled
       YamlTokenType+FixedTokenElement(type:COLON, text::)
       Whitespace(type:WHITESPACE, text: ) spaces: " "
       YamlTokenType+FixedTokenElement(type:LBRACK, text:[)

@@ -4,7 +4,15 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 {
   public static partial class YamlTokenType
   {
-    public const int INDENT_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 1;
+    public const int C_DOUBLE_QUOTED_MULTILINE_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 1;
+    public const int C_DOUBLE_QUOTED_SINGLE_LINE_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 2;
+    public const int C_SINGLE_QUOTED_MULTILINE_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 3;
+    public const int C_SINGLE_QUOTED_SINGLE_LINE_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 4;
+    public const int NS_ANCHOR_NAME_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 5;
+    public const int NS_DEC_DIGIT_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 6;
+    public const int NS_PLAIN_ONE_LINE_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 7;
+    public const int NS_PLAIN_MULTI_LINE_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 8;
+    public const int SCALAR_TEXT_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 9;
 
 
 
@@ -26,14 +34,14 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     public static readonly TokenNodeType NS_WORD_CHARS = new GenericTokenNodeType("NS_WORD_CHARS", LAST_GENERATED_TOKEN_TYPE_INDEX + 31, "NS_WORD_CHARS");
     public static readonly TokenNodeType NS_URI_CHARS = new GenericTokenNodeType("NS_URI_CHARS", LAST_GENERATED_TOKEN_TYPE_INDEX + 32, "NS_URI_CHARS");
     public static readonly TokenNodeType NS_TAG_CHARS = new GenericTokenNodeType("NS_TAG_CHARS", LAST_GENERATED_TOKEN_TYPE_INDEX + 33, "NS_TAG_CHARS");
-    public static readonly TokenNodeType NS_PLAIN_ONE_LINE = new GenericTokenNodeType("NS_PLAIN", LAST_GENERATED_TOKEN_TYPE_INDEX + 34, "NS_PLAIN");
-    public static readonly TokenNodeType NS_PLAIN_MULTI_LINE = new GenericTokenNodeType("NS_PLAIN", LAST_GENERATED_TOKEN_TYPE_INDEX + 35, "NS_PLAIN");
-    public static readonly TokenNodeType NS_ANCHOR_NAME = new GenericTokenNodeType("NS_ANCHOR_NAME", LAST_GENERATED_TOKEN_TYPE_INDEX + 36, "NS_ANCHOR_NAME");
-    public static readonly TokenNodeType C_SINGLE_QUOTED_SINGLE_LINE = new GenericTokenNodeType("C_SINGLE_QUOTED_SINGLE_LINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 37, "C_SINGLE_QUOTED_SINGLE_LINE");
-    public static readonly TokenNodeType C_SINGLE_QUOTED_MULTILINE = new GenericTokenNodeType("C_SINGLE_QUOTED_MULTILINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 38, "C_SINGLE_QUOTED_MULTILINE");
-    public static readonly TokenNodeType C_DOUBLE_QUOTED_SINGLE_LINE = new GenericTokenNodeType("C_DOUBLE_QUOTED_SINGLE_LINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 39, "C_DOUBLE_QUOTED_SINGLE_LINE");
-    public static readonly TokenNodeType C_DOUBLE_QUOTED_MULTILINE = new GenericTokenNodeType("C_DOUBLE_QUOTED_MULTILINE", LAST_GENERATED_TOKEN_TYPE_INDEX + 40, "C_DOUBLE_QUOTED_MULTILINE");
-    public static readonly TokenNodeType NS_DEC_DIGIT = new GenericTokenNodeType("NS_DEC_DIGIT", LAST_GENERATED_TOKEN_TYPE_INDEX + 41, "NS_DEC_DIGIT");
-    public static readonly TokenNodeType SCALAR_TEXT = new GenericTokenNodeType("SCALAR_TEXT", LAST_GENERATED_TOKEN_TYPE_INDEX + 42, "SCALAR_TEXT");
+    public static readonly TokenNodeType NS_PLAIN_ONE_LINE = new GenericTokenNodeType("NS_PLAIN", NS_PLAIN_ONE_LINE_NODE_TYPE_INDEX, "NS_PLAIN");
+    public static readonly TokenNodeType NS_PLAIN_MULTI_LINE = new GenericTokenNodeType("NS_PLAIN", NS_PLAIN_MULTI_LINE_NODE_TYPE_INDEX, "NS_PLAIN");
+    public static readonly TokenNodeType NS_ANCHOR_NAME = new GenericTokenNodeType("NS_ANCHOR_NAME", NS_ANCHOR_NAME_NODE_TYPE_INDEX, "NS_ANCHOR_NAME");
+    public static readonly TokenNodeType C_SINGLE_QUOTED_SINGLE_LINE = new GenericTokenNodeType("C_SINGLE_QUOTED_SINGLE_LINE", C_SINGLE_QUOTED_SINGLE_LINE_NODE_TYPE_INDEX, "C_SINGLE_QUOTED_SINGLE_LINE");
+    public static readonly TokenNodeType C_SINGLE_QUOTED_MULTILINE = new GenericTokenNodeType("C_SINGLE_QUOTED_MULTILINE", C_SINGLE_QUOTED_MULTILINE_NODE_TYPE_INDEX, "C_SINGLE_QUOTED_MULTILINE");
+    public static readonly TokenNodeType C_DOUBLE_QUOTED_SINGLE_LINE = new GenericTokenNodeType("C_DOUBLE_QUOTED_SINGLE_LINE", C_DOUBLE_QUOTED_SINGLE_LINE_NODE_TYPE_INDEX, "C_DOUBLE_QUOTED_SINGLE_LINE");
+    public static readonly TokenNodeType C_DOUBLE_QUOTED_MULTILINE = new GenericTokenNodeType("C_DOUBLE_QUOTED_MULTILINE", C_DOUBLE_QUOTED_MULTILINE_NODE_TYPE_INDEX, "C_DOUBLE_QUOTED_MULTILINE");
+    public static readonly TokenNodeType NS_DEC_DIGIT = new GenericTokenNodeType("NS_DEC_DIGIT", NS_DEC_DIGIT_NODE_TYPE_INDEX, "NS_DEC_DIGIT");
+    public static readonly TokenNodeType SCALAR_TEXT = new GenericTokenNodeType("SCALAR_TEXT", SCALAR_TEXT_NODE_TYPE_INDEX, "SCALAR_TEXT");
   }
 }
