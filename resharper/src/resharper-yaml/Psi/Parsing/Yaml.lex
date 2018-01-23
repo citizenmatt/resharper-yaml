@@ -217,7 +217,6 @@ C_DOCUMENT_END=^"..."
 
 <DIRECTIVE>     {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
 <DIRECTIVE>     {NEW_LINE}              { currentLineIndent = 0; yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
-<DIRECTIVE>     "!"                     { return YamlTokenType.BANG; }
 <DIRECTIVE>     {NS_CHAR}+              { return YamlTokenType.NS_CHARS; }
 <DIRECTIVE>     {NS_WORD_CHAR}+         { return YamlTokenType.NS_WORD_CHARS; }
 <DIRECTIVE>     {NS_URI_CHAR}+          { return YamlTokenType.NS_URI_CHARS; }
