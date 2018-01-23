@@ -27,6 +27,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         return new Comment(token);
       }
 
+      // NOTE: Not filtered
       public override bool IsComment => true;
       public override string TokenRepresentation => "# comment";
     }

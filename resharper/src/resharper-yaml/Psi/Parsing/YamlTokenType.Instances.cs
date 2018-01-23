@@ -4,6 +4,11 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 {
   public static partial class YamlTokenType
   {
+    public const int INDENT_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 1;
+
+
+
+
     public static readonly TokenNodeType BAD_CHARACTER = new GenericTokenNodeType("BAD_CHARACTER", LAST_GENERATED_TOKEN_TYPE_INDEX + 10, "�");
 
     public static readonly TokenNodeType EOF = new GenericTokenNodeType("EOF", LAST_GENERATED_TOKEN_TYPE_INDEX + 11, "EOF");

@@ -38,6 +38,7 @@
     <Compile Update="Psi\Parsing\YamlTokenType.Tokens.generated.cs">
       <DependentUpon>YamlTokenType.Tokens.xml</DependentUpon>
     </Compile>
+    <ParserGen Include="Psi\Parsing\Yaml.psi" />
   </ItemGroup>
   <!-- References -->
   <ItemGroup>
