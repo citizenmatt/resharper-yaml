@@ -174,6 +174,86 @@ interface node
 
 // **************************************************************************
 //
+// Node properties
+//
+// **************************************************************************
+
+nodeProperties
+:
+  (
+    tagProperty<TAG_PROPERTY, TagProperty>
+    anchorProperty<ANCHOR_PROPERTY, AnchorProperty>?
+  )
+  |
+  (
+    anchorProperty<ANCHOR_PROPERTY, AnchorProperty>
+    tagProperty<TAG_PROPERTY, TagProperty>?
+  )
+;
+
+interface tagProperty
+:
+  verbatimTagProperty
+  | shorthandTagProperty
+  | nonSpecificTagProperty
+;
+
+verbatimTagProperty
+:
+  BANG_LT<BANG_LT, BangLtIndicator>
+  NS_URI_CHARS<TEXT, Text>
+  GT<GT, GtIndicator>
+;
+
+shorthandTagProperty
+:
+  tagHandle<TAG_HANDLE, TagHandle>
+  NS_TAG_CHARS<TEXT, Text>
+;
+
+interface tagHandle
+:
+  namedTagHandle
+  | secondaryTagHandle
+  | primaryTagHandle
+;
+
+namedTagHandle
+:
+  BANG<BANG1, StartBangIndicator>
+  (
+    // TODO: Merge NS_WORD_CHARS and NS_TAG_CHARS tokens?
+    NS_WORD_CHARS<TEXT, Text>
+    | NS_TAG_CHARS<TEXT, Text>
+  )
+  BANG<BANG2, EndBangIndicator>
+;
+
+secondaryTagHandle
+:
+  BANG<BANG1, StartBangIndicator>
+  BANG<BANG2, EndBangIndicator>
+;
+
+primaryTagHandle
+:
+  BANG<BANG, BangIndicator>
+;
+
+nonSpecificTagProperty
+:
+  BANG<BANG, BangIndicator>
+;
+
+anchorProperty
+:
+  AMP<AMP, Amp>
+  NS_ANCHOR_NAME<ANCHOR_NAME, AnchorName>
+;
+
+
+// **************************************************************************
+//
 // Block nodes
 //
 // **************************************************************************
@@ -204,6 +284,7 @@ indentationIndicator
 
 literalScalarNode
 :
+  nodeProperties<NODE_PROPERTIES, NodeProperties>?
   PIPE<INDICATOR, PipeIndicator>
   blockHeader<HEADER, BlockHeader>?
   SCALAR_TEXT<TEXT, Text>+
@@ -211,6 +292,7 @@ literalScalarNode
 
 foldedScalarNode
 :
+  nodeProperties<NODE_PROPERTIES, NodeProperties>?
   GT<INDICATOR, GtIndicator>
   blockHeader<HEADER, BlockHeader>?
   SCALAR_TEXT<TEXT, Text>+
@@ -232,6 +314,7 @@ aliasNode
 
 plainScalarNode
 :
+  nodeProperties<NODE_PROPERTIES, NodeProperties>?
   // TODO: Handle indents
   NS_PLAIN_ONE_LINE<SINGLE_LINE, SingleLine>
   | NS_PLAIN_MULTI_LINE<MULTI_LINE, MultiLine>
@@ -239,12 +322,14 @@ plainScalarNode
 
 singleQuotedScalarNode
 :
+  nodeProperties<NODE_PROPERTIES, NodeProperties>?
   C_SINGLE_QUOTED_SINGLE_LINE<SINGLE_LINE, SingleLine>
   | C_SINGLE_QUOTED_MULTILINE<MULTI_LINE, MultiLine>
 ;
 
 doubleQuotedScalarNode
 :
+  nodeProperties<NODE_PROPERTIES, NodeProperties>?
   C_DOUBLE_QUOTED_SINGLE_LINE<SINGLE_LINE, SingleLine>
   | C_DOUBLE_QUOTED_MULTILINE<MULTI_LINE, MultiLine>
 ;

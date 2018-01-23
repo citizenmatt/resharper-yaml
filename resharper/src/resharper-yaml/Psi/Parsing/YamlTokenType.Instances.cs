@@ -12,7 +12,10 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     public const int NS_DEC_DIGIT_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 6;
     public const int NS_PLAIN_ONE_LINE_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 7;
     public const int NS_PLAIN_MULTI_LINE_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 8;
-    public const int SCALAR_TEXT_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 9;
+    public const int NS_TAG_CHARS_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 9;
+    public const int NS_URI_CHARS_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 10;
+    public const int NS_WORD_CHARS_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 11;
+    public const int SCALAR_TEXT_NODE_TYPE_INDEX = LAST_GENERATED_TOKEN_TYPE_INDEX + 12;
 
 
 
@@ -31,9 +34,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     // Should NS_URI_CHARS, NS_TAG_CHARS, NS_PLAIN and NS_ANCHOR_NAME just become some kind of "VALUE"?
     // I don't think the parser would really care what type of textual value it is - as long as the value is there
     public static readonly TokenNodeType NS_CHARS = new GenericTokenNodeType("NS_CHARS", LAST_GENERATED_TOKEN_TYPE_INDEX + 30, "NS_CHARS");
-    public static readonly TokenNodeType NS_WORD_CHARS = new GenericTokenNodeType("NS_WORD_CHARS", LAST_GENERATED_TOKEN_TYPE_INDEX + 31, "NS_WORD_CHARS");
-    public static readonly TokenNodeType NS_URI_CHARS = new GenericTokenNodeType("NS_URI_CHARS", LAST_GENERATED_TOKEN_TYPE_INDEX + 32, "NS_URI_CHARS");
-    public static readonly TokenNodeType NS_TAG_CHARS = new GenericTokenNodeType("NS_TAG_CHARS", LAST_GENERATED_TOKEN_TYPE_INDEX + 33, "NS_TAG_CHARS");
+    public static readonly TokenNodeType NS_WORD_CHARS = new GenericTokenNodeType("NS_WORD_CHARS", NS_WORD_CHARS_NODE_TYPE_INDEX, "NS_WORD_CHARS");
+    public static readonly TokenNodeType NS_URI_CHARS = new GenericTokenNodeType("NS_URI_CHARS", NS_URI_CHARS_NODE_TYPE_INDEX, "NS_URI_CHARS");
+    public static readonly TokenNodeType NS_TAG_CHARS = new GenericTokenNodeType("NS_TAG_CHARS", NS_TAG_CHARS_NODE_TYPE_INDEX, "NS_TAG_CHARS");
     public static readonly TokenNodeType NS_PLAIN_ONE_LINE = new GenericTokenNodeType("NS_PLAIN", NS_PLAIN_ONE_LINE_NODE_TYPE_INDEX, "NS_PLAIN");
     public static readonly TokenNodeType NS_PLAIN_MULTI_LINE = new GenericTokenNodeType("NS_PLAIN", NS_PLAIN_MULTI_LINE_NODE_TYPE_INDEX, "NS_PLAIN");
     public static readonly TokenNodeType NS_ANCHOR_NAME = new GenericTokenNodeType("NS_ANCHOR_NAME", NS_ANCHOR_NAME_NODE_TYPE_INDEX, "NS_ANCHOR_NAME");
