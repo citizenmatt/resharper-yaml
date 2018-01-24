@@ -1,7 +1,8 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
   IYamlDocument
-    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:First occurrence)
+    IPlainScalarNode
+      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:First occurrence)
     YamlTokenType+FixedTokenElement(type:COLON, text::)
     Whitespace(type:WHITESPACE, text: ) spaces: " "
     YamlTokenType+FixedTokenElement(type:AMP, text:&)

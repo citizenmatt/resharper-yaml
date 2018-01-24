@@ -46,6 +46,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     public void ParseFile()
     {
+      // Make sure we don't skip leading whitespace
       var mark = Builder.Mark();
 
       do
@@ -62,17 +63,15 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       if (Builder.Eof())
         return;
 
+      // Make sure we don't skip leading whitespace
       var mark = Builder.Mark();
 
       ParseDirectives();
-      ParseBlockNode();
+      if (GetTokenType() != YamlTokenType.DOCUMENT_END)
+        ParseBlockNode();
 
-      do
-      {
-        if (!Builder.Eof())
-          Advance();
-
-      } while (!Builder.Eof() && GetTokenType() != YamlTokenType.DOCUMENT_END);
+      while (!Builder.Eof() && GetTokenTypeNoSkipWhitespace() != YamlTokenType.DOCUMENT_END)
+        Advance();
 
       if (!Builder.Eof())
         ExpectToken(YamlTokenType.DOCUMENT_END);
@@ -86,7 +85,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       if (tt != YamlTokenType.PERCENT && tt != YamlTokenType.DIRECTIVES_END)
         return;
 
-      var mark = Builder.Mark();
+      var mark = Mark();
 
       do
       {
@@ -107,7 +106,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       if (GetTokenType() != YamlTokenType.PERCENT)
         return;
 
-      var mark = Builder.Mark();
+      var mark = Mark();
 
       ExpectToken(YamlTokenType.PERCENT);
       SkipSingleLineWhitespace();
@@ -145,8 +144,164 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private bool TryParseBlockInBlock()
     {
-      // TODO: Parse block in block
-      return false;
+      return TryParseBlockScalar() || TryParseBlockCollection();
+    }
+
+    private bool TryParseBlockScalar()
+    {
+      var mark = Mark();
+
+      ParseNodeProperties();
+
+      var tt = GetTokenType();
+      if (tt != YamlTokenType.PIPE && tt != YamlTokenType.GT)
+      {
+        Builder.RollbackTo(mark);
+        return false;
+      }
+
+      if (tt == YamlTokenType.PIPE)
+        ParseLiteralScalar(mark);
+      if (tt == YamlTokenType.GT)
+        ParseFoldedScalar(mark);
+
+      return true;
+    }
+
+    private void ParseLiteralScalar(int mark)
+    {
+      ExpectToken(YamlTokenType.PIPE);
+      ParseBlockHeader();
+
+      // TODO: Proper indent handling
+      do
+      {
+        if (GetTokenType() == YamlTokenType.INDENT)
+          Advance();
+        ExpectToken(YamlTokenType.SCALAR_TEXT);
+      } while (!Builder.Eof() && (GetTokenType() == YamlTokenType.INDENT || GetTokenType() == YamlTokenType.SCALAR_TEXT));
+
+      DoneBeforeWhitespaces(mark, ElementType.LITERAL_SCALAR_NODE);
+    }
+
+    private void ParseFoldedScalar(int mark)
+    {
+      ExpectToken(YamlTokenType.GT);
+      ParseBlockHeader();
+
+      // TODO: Proper indent handling
+      do
+      {
+        do
+        {
+          if (GetTokenType() == YamlTokenType.INDENT)
+            Advance();
+        } while (!Builder.Eof() && GetTokenType() == YamlTokenType.INDENT);
+
+        if (GetTokenType() == YamlTokenType.SCALAR_TEXT)
+          Advance();
+
+      } while (!Builder.Eof() && (GetTokenType() == YamlTokenType.INDENT || GetTokenType() == YamlTokenType.SCALAR_TEXT));
+
+      DoneBeforeWhitespaces(mark, ElementType.FOLDED_SCALAR_NODE);
+    }
+
+    private void ParseBlockHeader()
+    {
+      var tt = GetTokenType();
+      if (tt != YamlTokenType.NS_DEC_DIGIT && tt != YamlTokenType.PLUS && tt != YamlTokenType.MINUS)
+        return;
+
+      var mark = Mark();
+      if (tt == YamlTokenType.NS_DEC_DIGIT)
+      {
+        ExpectToken(YamlTokenType.NS_DEC_DIGIT);
+        tt = GetTokenType();
+        if (tt == YamlTokenType.PLUS || tt == YamlTokenType.MINUS)
+          Advance();
+      }
+      else
+      {
+        Advance();  // PLUS or MINUS
+        if (GetTokenTypeNoSkipWhitespace() == YamlTokenType.NS_DEC_DIGIT)
+          Advance();
+      }
+      DoneBeforeWhitespaces(mark, ElementType.BLOCK_HEADER);
+    }
+
+    private bool TryParseBlockCollection()
+    {
+      var mark = Mark();
+
+      ParseNodeProperties();
+
+      var tt = GetTokenType();
+      if (tt == YamlTokenType.MINUS)
+        ParseBlockSequence(mark);
+      else if (tt == YamlTokenType.QUESTION)
+        ParseBlockMapping(mark);
+      else
+      {
+        // TODO: Implicit mapping keys
+        Builder.RollbackTo(mark);
+        return false;
+      }
+
+      return true;
+    }
+
+    private void ParseBlockSequence(int mark)
+    {
+      do
+      {
+        ParseBlockSequenceItem();
+      } while (!Builder.Eof() && (GetTokenType() == YamlTokenType.MINUS || LookAhead(1) == YamlTokenType.MINUS));
+      DoneBeforeWhitespaces(mark, ElementType.BLOCK_SEQUENCE_NODE);
+    }
+
+    private void ParseBlockSequenceItem()
+    {
+      var mark = Mark();
+
+      // TODO: Proper indent handling!
+      if (GetTokenType() == YamlTokenType.INDENT)
+        Advance();
+      ExpectToken(YamlTokenType.MINUS);
+      ParseBlockNode();
+
+      DoneBeforeWhitespaces(mark, ElementType.BLOCK_SEQUENCE_ITEM_NODE);
+    }
+
+    private void ParseBlockMapping(int mark)
+    {
+      do
+      {
+        ParseBlockMappingPair();
+      } while (!Builder.Eof());
+      DoneBeforeWhitespaces(mark, ElementType.BLOCK_MAPPING_NODE);
+    }
+
+    private void ParseBlockMappingPair()
+    {
+      var mark = Mark();
+
+      // TODO: Proper indent handling!
+      if (GetTokenType() == YamlTokenType.INDENT)
+        Advance();
+      ExpectToken(YamlTokenType.QUESTION);
+      ParseBlockNode();
+      if (GetTokenType() == YamlTokenType.COLON)
+      {
+        ExpectToken(YamlTokenType.COLON);
+        ParseBlockNode();
+      }
+      else
+      {
+        var emptyMark = Mark();
+        DoneBeforeWhitespaces(emptyMark, ElementType.EMPTY_SCALAR_NODE);
+      }
+
+      DoneBeforeWhitespaces(mark, ElementType.BLOCK_MAPPING_PAIR_NODE);
     }
 
     private void ParseFlowInBlock()
@@ -161,13 +316,15 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         ParseAliasNode();
       else
       {
+        var mark = Mark();
         ParseNodeProperties();
+        ParseFlowContent(mark);
       }
     }
 
     private void ParseAliasNode()
     {
-      var mark = Builder.Mark();
+      var mark = Mark();
       ExpectToken(YamlTokenType.ASTERISK);
       ExpectToken(YamlTokenType.NS_ANCHOR_NAME);
       DoneBeforeWhitespaces(mark, ElementType.ALIAS_NODE);
@@ -176,12 +333,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     private void ParseNodeProperties()
     {
       var tt = GetTokenType();
-      if (tt != YamlTokenType.BANG && tt != YamlTokenType.AMP)
+      if (tt != YamlTokenType.BANG && tt != YamlTokenType.BANG_LT && tt != YamlTokenType.AMP)
         return;
 
-      var mark = Builder.Mark();
+      var mark = Mark();
 
-      if (tt == YamlTokenType.BANG)
+      if (tt == YamlTokenType.BANG || tt == YamlTokenType.BANG_LT)
       {
         ParseTagProperty();
         ParseAnchorProperty();
@@ -201,7 +358,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       if (tt != YamlTokenType.AMP)
         return;
 
-      var mark = Builder.Mark();
+      var mark = Mark();
       ExpectToken(YamlTokenType.AMP);
       ExpectTokenNoSkipWhitespace(YamlTokenType.NS_ANCHOR_NAME);
       DoneBeforeWhitespaces(mark, ElementType.ANCHOR_PROPERTY);
@@ -220,7 +377,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       }
 
       // tt == YamlTokenType.BANG
-      if (LookAhead(1).IsWhitespace)
+      if (LookAheadNoSkipWhitespaces(1).IsWhitespace)
         ParseNonSpecificTagProperty();
       else
         ParseShorthandTagProperty();
@@ -228,7 +385,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private void ParseVerbatimTagProperty()
     {
-      var mark = Builder.Mark();
+      var mark = Mark();
       ExpectToken(YamlTokenType.BANG_LT);
       ExpectTokenNoSkipWhitespace(YamlTokenType.NS_URI_CHARS);
       ExpectTokenNoSkipWhitespace(YamlTokenType.GT);
@@ -239,7 +396,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       var mark = Mark();
       ParseTagHandle();
-      ExpectTokenNoSkipWhitespace(YamlTokenType.NS_TAG_CHARS);
+      var tt = GetTokenTypeNoSkipWhitespace();
+      // TODO: Is TAG_CHARS a superset of ns-plain?
+      // TODO: Perhaps we should accept all text and add an inspection for invalid chars?
+      if (tt != YamlTokenType.NS_TAG_CHARS && tt != YamlTokenType.NS_PLAIN_ONE_LINE)
+        ErrorBeforeWhitespaces(ParserMessages.GetExpectedMessage("text"));
+      Advance();
       DoneBeforeWhitespaces(mark, ElementType.SHORTHAND_TAG_PROPERTY);
     }
 
@@ -284,6 +446,63 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       var mark = Mark();
       ExpectToken(YamlTokenType.BANG);
       DoneBeforeWhitespaces(mark, ElementType.NON_SPECIFIC_TAG_PROPERTY);
+    }
+
+    private void ParseFlowContent(int mark)
+    {
+      CompositeNodeType elementType;
+
+      // TODO: Proper handling of indents!
+      if (GetTokenType() == YamlTokenType.INDENT)
+        Advance();
+
+      var tt = GetTokenType();
+      if (tt == YamlTokenType.LBRACK)
+        elementType = ParseFlowSequence();
+      else if (tt == YamlTokenType.LBRACE)
+        elementType = ParseFlowMapping();
+      else if (tt == YamlTokenType.C_DOUBLE_QUOTED_MULTI_LINE || tt == YamlTokenType.C_DOUBLE_QUOTED_SINGLE_LINE)
+      {
+        Advance();
+        elementType = ElementType.DOUBLE_QUOTED_SCALAR_NODE;
+      }
+      else if (tt == YamlTokenType.C_SINGLE_QUOTED_MULTI_LINE || tt == YamlTokenType.C_SINGLE_QUOTED_SINGLE_LINE)
+      {
+        Advance();
+        elementType = ElementType.SINGLE_QUOTED_SCALAR_NODE;
+      }
+      else if (tt == YamlTokenType.NS_PLAIN_MULTI_LINE || tt == YamlTokenType.NS_PLAIN_ONE_LINE)
+      {
+        // TODO: Multi-line and indents. Woohoo!
+        Advance();
+        elementType = ElementType.PLAIN_SCALAR_NODE;
+      }
+      else
+        elementType = ElementType.EMPTY_SCALAR_NODE;
+
+      DoneBeforeWhitespaces(mark, elementType);
+    }
+
+    private CompositeNodeType ParseFlowSequence()
+    {
+      do
+      {
+        Advance();
+      } while (!Builder.Eof() && GetTokenType() != YamlTokenType.RBRACK);
+      Advance();  // RBRACK
+
+      return ElementType.FLOW_SEQUENCE_NODE;
+    }
+
+    private CompositeNodeType ParseFlowMapping()
+    {
+      do
+      {
+        Advance();
+      } while (!Builder.Eof() && GetTokenType() != YamlTokenType.RBRACE);
+      Advance();  // RBRACE
+
+      return ElementType.FLOW_MAPPING_NODE;
     }
 
     private TokenNodeType GetTokenTypeNoSkipWhitespace()

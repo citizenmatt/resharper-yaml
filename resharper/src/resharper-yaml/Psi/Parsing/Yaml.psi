@@ -94,7 +94,7 @@ options {
 yamlDocument
 :
   directives<DIRECTIVES, Directives>?
-  //blockNode
+  node<NODE, BlockNode>?
   
   // TODO: Documents must either be separated with one or more document end markers or directive end marker
   // We can't easily capture that without using interface, and I don't want to do that
@@ -116,7 +116,7 @@ directives
 
 directive
 :
-  PERCENT<PERCENT, Percent>
+  PERCENT<YAML_INDICATOR, PercentIndicator>
   NS_CHARS<NAME, Name>
   NS_CHARS<PARAMETERS, Parameters>*
 ;
@@ -133,12 +133,23 @@ interface node
   // Block scalars
   literalScalarNode
   | foldedScalarNode
+  
+  // Block collections
+  | blockSequenceNode
+  | blockSequenceItemNode
+  | blockMappingNode
+  | blockMappingPairNode
 
   // Flow scalars
   | aliasNode
   | plainScalarNode
   | singleQuotedScalarNode
   | doubleQuotedScalarNode
+  | emptyScalarNode
+  
+  // Flow collections
+  | flowSequenceNode
+  | flowMappingNode
 ;
 
 nodeProperties
@@ -157,19 +168,19 @@ interface tagProperty
 verbatimTagProperty
 :
   BANG_LT<BANG_LT_INDICATOR, BangLtIndicator>
-  NS_URI_CHARS<TEXT, Text>
+  NS_URI_CHARS<YAML_TEXT, Text>
   GT<GT_INDICATOR, GtIndicator>
 ;
 
 shorthandTagProperty
 :
   tagHandle<TAG_HANDLE, TagHandle>
-  NS_TAG_CHARS<TEXT, Text>
+  NS_TAG_CHARS<YAML_TEXT, Text>
 ;
 
 nonSpecificTagProperty
 :
-  BANG<BANG_INDICATOR, BangIndicator>
+  BANG<YAML_INDICATOR, BangIndicator>
 ;
 
 interface tagHandle
@@ -184,27 +195,27 @@ namedTagHandle
   BANG<BANG_INDICATOR, BangIndicator>
   (
     // TODO: Merge NS_WORD_CHARS and NS_TAG_CHARS tokens?
-    NS_WORD_CHARS<TEXT, Text>
-    | NS_TAG_CHARS<TEXT, Text>
+    NS_WORD_CHARS<YAML_TEXT, Text>
+    | NS_TAG_CHARS<YAML_TEXT, Text>
   )?
-  BANG<BANG_INDICATOR, EndBangIndicator>
+  BANG<END_BANG_INDICATOR, EndBangIndicator>
 ;
 
 secondaryTagHandle
 :
   BANG<BANG_INDICATOR, BangIndicator>
-  BANG<BANG_INDICATOR, EndBangIndicator>
+  BANG<END_BANG_INDICATOR, EndBangIndicator>
 ;
 
 primaryTagHandle
 :
-  BANG<BANG_INDICATOR, BangIndicator>
+  BANG<YAML_INDICATOR, BangIndicator>
 ;
 
 anchorProperty
 :
-  AMP<AMP_INDICATOR, AmpIndicator>
-  NS_ANCHOR_NAME<TEXT, Text>
+  AMP<YAML_INDICATOR, AmpIndicator>
+  NS_ANCHOR_NAME<YAML_TEXT, Text>
 ;
 
 
@@ -222,8 +233,8 @@ blockHeader
 
 chompingIndicator
 :
-  PLUS<PLUS, Plus>
-  | MINUS<MINUS, Minus>
+  PLUS<PLUS_INDICATOR, PlusIndicator>
+  | MINUS<MINUS_INDICATOR, MinusIndicator>
 ;
 
 indentationIndicator
@@ -233,15 +244,50 @@ indentationIndicator
 
 literalScalarNode
 :
-  PIPE<INDICATOR, PipeIndicator>
+  PIPE<YAML_INDICATOR, PipeIndicator>
   blockHeader<BLOCK_HEADER, BlockHeader>?
-  SCALAR_TEXT<TEXT, Text>+
+  SCALAR_TEXT<YAML_TEXT, Text>+
 ;
 
 foldedScalarNode
 :
-  GT<INDICATOR, GtIndicator>
+  GT<YAML_INDICATOR, GtIndicator>
   blockHeader<BLOCK_HEADER, BlockHeader>?
+  SCALAR_TEXT<YAML_TEXT, Text>+
+;
+
+
+// **************************************************************************
+//
+// Block collection nodes
+//
+// **************************************************************************
+
+blockSequenceNode
+:
+  // TODO: One or many, or zero or many?
+  blockSequenceItemNode<ITEMS, Items>+
+;
+
+blockSequenceItemNode
+:
+  INDENT<YAML_INDENT, Indent>
+  MINUS<YAML_INDICATOR, MinusIndicator>
+  node<VALUE, Value>
+;
+
+blockMappingNode
+:
+  blockMappingPairNode<PAIRS, Pairs>+
+;
+
+blockMappingPairNode
+:
+  INDENT<YAML_INDENT, Indent>
+  QUESTION<QUESTION_INDICATOR, QuestionIndicator>
+  node<KEY, Key>
+  COLON<COLON_INDICATOR, ColonIndicator>
+  node<VALUE, Value>
 ;
 
 
@@ -253,25 +299,55 @@ foldedScalarNode
 
 aliasNode
 :
-  ASTERISK<ASTERISK, Asterisk>
-  NS_ANCHOR_NAME<ANCHOR_NAME, AnchorName>
+  ASTERISK<YAML_INDICATOR, Asterisk>
+  NS_ANCHOR_NAME<YAML_TEXT, AnchorName>
 ;
 
 plainScalarNode
 :
+  nodeProperties<YAML_PROPERTIES, Properties>?
   // TODO: INDENTS!!!!
-  NS_PLAIN_ONE_LINE<TEXT, Text>
-  | NS_PLAIN_MULTI_LINE<TEXT, Text>
+  NS_PLAIN_ONE_LINE<YAML_TEXT, Text>
+  | NS_PLAIN_MULTI_LINE<YAML_TEXT, Text>
 ;
 
 singleQuotedScalarNode
 :
-  C_SINGLE_QUOTED_SINGLE_LINE<TEXT, Text>
-  | C_SINGLE_QUOTED_MULTI_LINE<TEXT, Text>
+  nodeProperties<YAML_PROPERTIES, Properties>?
+  C_SINGLE_QUOTED_SINGLE_LINE<YAML_TEXT, Text>
+  | C_SINGLE_QUOTED_MULTI_LINE<YAML_TEXT, Text>
 ;
 
 doubleQuotedScalarNode
 :
-  C_DOUBLE_QUOTED_SINGLE_LINE<TEXT, Text>
-  | C_DOUBLE_QUOTED_MULTI_LINE<TEXT, Text>
+  nodeProperties<YAML_PROPERTIES, Properties>?
+  C_DOUBLE_QUOTED_SINGLE_LINE<YAML_TEXT, Text>
+  | C_DOUBLE_QUOTED_MULTI_LINE<YAML_TEXT, Text>
+;
+
+emptyScalarNode
+:
+  nodeProperties<YAML_PROPERTIES, Properties>?
+;
+
+// **************************************************************************
+//
+// Flow collection nodes
+//
+// **************************************************************************
+
+flowSequenceNode
+:
+  nodeProperties<YAML_PROPERTIES, Properties>?
+  LBRACK<LBRACK, LBrack>
+  // TODO: content
+  RBRACK<RBRACK, RBrack>
+;
+
+flowMappingNode
+:
+  nodeProperties<YAML_PROPERTIES, Properties>?
+  LBRACE<LBRACE, LBrace>
+  // TODO: content
+  RBRACE<RBRACE, RBrace>
 ;

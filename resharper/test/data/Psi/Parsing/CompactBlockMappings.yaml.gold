@@ -1,9 +1,12 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
   IYamlDocument
-    YamlTokenType+FixedTokenElement(type:MINUS, text:-)
-    Whitespace(type:WHITESPACE, text: ) spaces: " "
-    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:sun)
+    IBlockSequenceNode
+      IBlockSequenceItemNode
+        YamlTokenType+FixedTokenElement(type:MINUS, text:-)
+        Whitespace(type:WHITESPACE, text: ) spaces: " "
+        IPlainScalarNode
+          YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:sun)
     YamlTokenType+FixedTokenElement(type:COLON, text::)
     Whitespace(type:WHITESPACE, text: ) spaces: " "
     YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:yellow)

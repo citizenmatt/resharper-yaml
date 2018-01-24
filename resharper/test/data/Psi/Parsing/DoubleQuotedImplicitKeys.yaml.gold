@@ -1,7 +1,8 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
   IYamlDocument
-    YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"implicit block key")
+    IDoubleQuotedScalarNode
+      YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"implicit block key")
     Whitespace(type:WHITESPACE, text: ) spaces: " "
     YamlTokenType+FixedTokenElement(type:COLON, text::)
     Whitespace(type:WHITESPACE, text: ) spaces: " "

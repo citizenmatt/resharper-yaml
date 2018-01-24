@@ -4,6 +4,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 {
   public static class ParserMessages
   {
+    public const string IDS_BLOCK_MAPPING_PAIR_NODE = "mapping pair";
+    public const string IDS_BLOCK_SEQUENCE_ITEM_NODE = "sequence item";
     public const string IDS_CHOMPING_INDICATOR = "chomping indicator";
     public const string IDS_DIRECTIVE = "directive";
     public const string IDS_DOUBLE_QUOTED_SCALAR_NODE = "double quoted scalar";
