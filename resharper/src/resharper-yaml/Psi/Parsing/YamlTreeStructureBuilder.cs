@@ -65,15 +65,14 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       var mark = Builder.Mark();
 
       ParseDirectives();
+      ParseBlockNode();
 
-      // PARSE REST
       do
       {
         if (!Builder.Eof())
           Advance();
 
       } while (!Builder.Eof() && GetTokenType() != YamlTokenType.DOCUMENT_END);
-      // PARSE REST
 
       if (!Builder.Eof())
         ExpectToken(YamlTokenType.DOCUMENT_END);
@@ -95,7 +94,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         ParseDirective();
         if (curr == Builder.GetCurrentLexeme())
           break;
-      } while (!Builder.Eof() && Builder.GetTokenType() != YamlTokenType.DIRECTIVES_END);
+      } while (!Builder.Eof() && GetTokenType() != YamlTokenType.DIRECTIVES_END);
 
       if (!Builder.Eof())
         ExpectToken(YamlTokenType.DIRECTIVES_END);
@@ -118,7 +117,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       {
         parsed = ExpectToken(YamlTokenType.NS_CHARS, dontSkipSpacesAfter: true);
         SkipSingleLineWhitespace();
-      } while (parsed && !Builder.Eof() && Builder.GetTokenType() != YamlTokenType.NEW_LINE);
+      } while (parsed && !Builder.Eof() && GetTokenTypeNoSkipWhitespace() != YamlTokenType.NEW_LINE);
 
       if (!Builder.Eof())
         Advance();  // NEW_LINE
@@ -138,11 +137,181 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       Done(mark, ElementType.DIRECTIVE);
     }
 
+    private void ParseBlockNode()
+    {
+      if (!TryParseBlockInBlock())
+        ParseFlowInBlock();
+    }
+
+    private bool TryParseBlockInBlock()
+    {
+      // TODO: Parse block in block
+      return false;
+    }
+
+    private void ParseFlowInBlock()
+    {
+      ParseFlowNode();
+    }
+
+    private void ParseFlowNode()
+    {
+      var tt = GetTokenType();
+      if (tt == YamlTokenType.ASTERISK)
+        ParseAliasNode();
+      else
+      {
+        ParseNodeProperties();
+      }
+    }
+
+    private void ParseAliasNode()
+    {
+      var mark = Builder.Mark();
+      ExpectToken(YamlTokenType.ASTERISK);
+      ExpectToken(YamlTokenType.NS_ANCHOR_NAME);
+      DoneBeforeWhitespaces(mark, ElementType.ALIAS_NODE);
+    }
+
+    private void ParseNodeProperties()
+    {
+      var tt = GetTokenType();
+      if (tt != YamlTokenType.BANG && tt != YamlTokenType.AMP)
+        return;
+
+      var mark = Builder.Mark();
+
+      if (tt == YamlTokenType.BANG)
+      {
+        ParseTagProperty();
+        ParseAnchorProperty();
+      }
+      else if (tt == YamlTokenType.AMP)
+      {
+        ParseAnchorProperty();
+        ParseTagProperty();
+      }
+
+      DoneBeforeWhitespaces(mark, ElementType.NODE_PROPERTIES);
+    }
+
+    private void ParseAnchorProperty()
+    {
+      var tt = GetTokenType();
+      if (tt != YamlTokenType.AMP)
+        return;
+
+      var mark = Builder.Mark();
+      ExpectToken(YamlTokenType.AMP);
+      ExpectTokenNoSkipWhitespace(YamlTokenType.NS_ANCHOR_NAME);
+      DoneBeforeWhitespaces(mark, ElementType.ANCHOR_PROPERTY);
+    }
+
+    private void ParseTagProperty()
+    {
+      var tt = GetTokenType();
+      if (tt != YamlTokenType.BANG && tt != YamlTokenType.BANG_LT)
+        return;
+
+      if (tt == YamlTokenType.BANG_LT)
+      {
+        ParseVerbatimTagProperty();
+        return;
+      }
+
+      // tt == YamlTokenType.BANG
+      if (LookAhead(1).IsWhitespace)
+        ParseNonSpecificTagProperty();
+      else
+        ParseShorthandTagProperty();
+    }
+
+    private void ParseVerbatimTagProperty()
+    {
+      var mark = Builder.Mark();
+      ExpectToken(YamlTokenType.BANG_LT);
+      ExpectTokenNoSkipWhitespace(YamlTokenType.NS_URI_CHARS);
+      ExpectTokenNoSkipWhitespace(YamlTokenType.GT);
+      DoneBeforeWhitespaces(mark, ElementType.VERBATIM_TAG_PROPERTY);
+    }
+
+    private void ParseShorthandTagProperty()
+    {
+      var mark = Mark();
+      ParseTagHandle();
+      ExpectTokenNoSkipWhitespace(YamlTokenType.NS_TAG_CHARS);
+      DoneBeforeWhitespaces(mark, ElementType.SHORTHAND_TAG_PROPERTY);
+    }
+
+    private void ParseTagHandle()
+    {
+      var mark = Mark();
+      ExpectToken(YamlTokenType.BANG);
+      var elementType = ParseSecondaryOrNamedTagHandle();
+      DoneBeforeWhitespaces(mark, elementType);
+    }
+
+    private CompositeNodeType ParseSecondaryOrNamedTagHandle()
+    {
+      // Make sure we don't try to match a primary tag handle followed by ns-plain. E.g. `!foo`
+      var tt = GetTokenTypeNoSkipWhitespace();
+      var la = LookAhead(1);
+      if (tt.IsWhitespace || ((tt == YamlTokenType.NS_WORD_CHARS || tt == YamlTokenType.NS_TAG_CHARS) &&
+                              la != YamlTokenType.BANG))
+      {
+        return ElementType.PRIMARY_TAG_HANDLE;
+      }
+
+      if (tt != YamlTokenType.NS_WORD_CHARS && tt != YamlTokenType.NS_TAG_CHARS && tt != YamlTokenType.BANG)
+      {
+        ErrorBeforeWhitespaces(ParserMessages.GetExpectedMessage("text", YamlTokenType.BANG.TokenRepresentation));
+        return ElementType.NAMED_TAG_HANDLE;
+      }
+
+      var elementType = ElementType.SECONDARY_TAG_HANDLE;
+      if (tt != YamlTokenType.BANG)
+      {
+        Advance();  // CHARS
+        elementType = ElementType.NAMED_TAG_HANDLE;
+      }
+      ExpectTokenNoSkipWhitespace(YamlTokenType.BANG);
+
+      return elementType;
+    }
+
+    private void ParseNonSpecificTagProperty()
+    {
+      var mark = Mark();
+      ExpectToken(YamlTokenType.BANG);
+      DoneBeforeWhitespaces(mark, ElementType.NON_SPECIFIC_TAG_PROPERTY);
+    }
+
+    private TokenNodeType GetTokenTypeNoSkipWhitespace()
+    {
+      // this.GetTokenType() calls SkipWhitespace() first
+      return Builder.GetTokenType();
+    }
+
+    private bool ExpectTokenNoSkipWhitespace(NodeType token, bool dontSkipSpacesAfter = false)
+    {
+      if (GetTokenTypeNoSkipWhitespace() != token)
+      {
+        var message = (token as TokenNodeType)?.GetDescription() ?? token.ToString();
+        ErrorBeforeWhitespaces(GetExpectedMessage(message));
+        return false;
+      }
+      if (dontSkipSpacesAfter)
+        Builder.AdvanceLexer();
+      else
+        Advance();
+      return true;
+    }
+
     private void SkipSingleLineWhitespace()
     {
       while (!Builder.Eof())
       {
-        var tt = Builder.GetTokenType();
+        var tt = GetTokenTypeNoSkipWhitespace();
         if (tt == YamlTokenType.NEW_LINE || (!tt.IsWhitespace && !tt.IsComment))
           return;
 

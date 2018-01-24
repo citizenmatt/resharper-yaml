@@ -3,8 +3,11 @@ IYamlFile
   Comment(type:COMMENT, text:# Private) spaces: "# Private"
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
   IYamlDocument
-    YamlTokenType+FixedTokenElement(type:BANG, text:!)
-    YamlTokenType+GenericTokenElement(type:NS_TAG_CHARS, text:foo)
+    INodeProperties
+      IShorthandTagProperty
+        IPrimaryTagHandle
+          YamlTokenType+FixedTokenElement(type:BANG, text:!)
+        YamlTokenType+GenericTokenElement(type:NS_TAG_CHARS, text:foo)
     Whitespace(type:WHITESPACE, text: ) spaces: " "
     YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"bar")
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
@@ -24,8 +27,11 @@ IYamlFile
         NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+FixedTokenElement(type:DIRECTIVES_END, text:---)
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-    YamlTokenType+FixedTokenElement(type:BANG, text:!)
-    YamlTokenType+GenericTokenElement(type:NS_TAG_CHARS, text:foo)
+    INodeProperties
+      IShorthandTagProperty
+        IPrimaryTagHandle
+          YamlTokenType+FixedTokenElement(type:BANG, text:!)
+        YamlTokenType+GenericTokenElement(type:NS_TAG_CHARS, text:foo)
     Whitespace(type:WHITESPACE, text: ) spaces: " "
     YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"bar")
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"

@@ -201,9 +201,9 @@ C_DOCUMENT_END=^"..."
                 {C_NB_COMMENT_TEXT}     { return YamlTokenType.COMMENT; }
 
 <BLOCK, FLOW>   {C_SINGLE_QUOTED_key}   { BeginJsonAdjacentValue(); return YamlTokenType.C_SINGLE_QUOTED_SINGLE_LINE; }
-<BLOCK, FLOW>   {C_SINGLE_QUOTED_flow}  { BeginJsonAdjacentValue(); return YamlTokenType.C_SINGLE_QUOTED_MULTILINE; }
+<BLOCK, FLOW>   {C_SINGLE_QUOTED_flow}  { BeginJsonAdjacentValue(); return YamlTokenType.C_SINGLE_QUOTED_MULTI_LINE; }
 <BLOCK, FLOW>   {C_DOUBLE_QUOTED_key}   { BeginJsonAdjacentValue(); return YamlTokenType.C_DOUBLE_QUOTED_SINGLE_LINE; }
-<BLOCK, FLOW>   {C_DOUBLE_QUOTED_flow}  { BeginJsonAdjacentValue(); return YamlTokenType.C_DOUBLE_QUOTED_MULTILINE; }
+<BLOCK, FLOW>   {C_DOUBLE_QUOTED_flow}  { BeginJsonAdjacentValue(); return YamlTokenType.C_DOUBLE_QUOTED_MULTI_LINE; }
 
 
 <JSON_ADJACENT_VALUE> ":"               { EndJsonAdjacentValue(); return YamlTokenType.COLON; }

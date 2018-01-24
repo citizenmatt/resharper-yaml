@@ -27,5 +27,5 @@ IYamlFile
     Comment(type:COMMENT, text:# Empty) spaces: "# Empty"
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
     YamlTokenType+FixedTokenElement(type:DOCUMENT_END, text:...)
-  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
 
