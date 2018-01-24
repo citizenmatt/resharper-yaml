@@ -64,20 +64,50 @@ options {
   generateWorkingPsi;
 }
 
-errorhandling yamlFile
+
+// **************************************************************************
+//
+// File (streams and documents)
+//
+// **************************************************************************
+
+yamlFile
 options {
   stubBase="YamlFileElement";
 }
 :
-  unparsedError
+  yamlDocument<DOCUMENT, Documents>*
 ;
 
-abstract unparsedError
-options {
-  interfaceName = "JetBriains.ReSharper.Psi.Tree.IErrorElement";
-  elementType = "ERROR_ELEMENT";
-}
+yamlDocument
 :
-  // Whatever
-  INDENT<INDENT, Indent>
+  directives<DIRECTIVES, Directives>?
+
+  // TODO: blockNode
+  
+  // TODO: Documents must either be separated with one or more document end markers or directive end marker
+  // We can't easily capture that without using interface, and I don't want to do that
+  DOCUMENT_END<DOCUMENT_END, DocumentEndMarker>*
 ;
+
+
+// **************************************************************************
+//
+// Directives
+//
+// **************************************************************************
+
+directives
+: 
+  directive<DIRECTIVE, Directive>+
+  DIRECTIVES_END<DIRECTIVES_END, DirectivesEndMarker>*
+;
+
+directive
+:
+  PERCENT<PERCENT, Percent>
+  NS_CHARS<NAME, Name>
+  NS_CHARS<PARAMETERS, Parameters>*
+;
+
+

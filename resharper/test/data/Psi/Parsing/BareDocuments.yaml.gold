@@ -1,17 +1,19 @@
 ﻿Language: PsiLanguageType:YAML
 IYamlFile
-  YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:Bare)
-  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-  YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:document)
-  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-  YamlTokenType+FixedTokenElement(type:DOCUMENT_END, text:...)
+  IYamlDocument
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:Bare)
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:document)
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+FixedTokenElement(type:DOCUMENT_END, text:...)
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
   Comment(type:COMMENT, text:# No document) spaces: "# No document"
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-  YamlTokenType+FixedTokenElement(type:DOCUMENT_END, text:...)
-  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-  YamlTokenType+FixedTokenElement(type:PIPE, text:|)
-  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-  YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:%!PS-Adobe-2.0 # Not the first line - should be string)
-  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+  IYamlDocument
+    YamlTokenType+FixedTokenElement(type:DOCUMENT_END, text:...)
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+FixedTokenElement(type:PIPE, text:|)
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:%!PS-Adobe-2.0 # Not the first line - should be string)
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
 

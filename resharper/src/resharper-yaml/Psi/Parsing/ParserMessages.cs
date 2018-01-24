@@ -4,6 +4,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 {
   public static class ParserMessages
   {
+    public const string IDS_DIRECTIVE = "directive";
+
     public static string GetString(string id) => id;
 
     public static string GetUnexpectedTokenMessage() => "Unexpected token";
