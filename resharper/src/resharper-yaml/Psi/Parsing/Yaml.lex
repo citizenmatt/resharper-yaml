@@ -158,11 +158,11 @@ C_DOCUMENT_END=^"..."
 %%
 
 <YYINITIAL, BLOCK, FLOW>
-                ^{WHITESPACE}           { currentLineIndent = yy_buffer_end; return YamlTokenType.INDENT; }
+                ^{WHITESPACE}           { currentLineIndent = yylength(); return YamlTokenType.INDENT; }
 <YYINITIAL, BLOCK, FLOW>
                 {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
 <YYINITIAL, BLOCK, FLOW>
-                {NEW_LINE}              { currentLineIndent = 0; return YamlTokenType.NEW_LINE; }
+                {NEW_LINE}              { HandleNewLine(); return YamlTokenType.NEW_LINE; }
 
 <YYINITIAL>     ^"%"                    { yybegin(DIRECTIVE); return YamlTokenType.PERCENT; }
 <YYINITIAL>     {C_DIRECTIVES_END}      { currentLineIndent = 0; yybegin(BLOCK); return YamlTokenType.DIRECTIVES_END; }
@@ -188,14 +188,14 @@ C_DOCUMENT_END=^"..."
 <BLOCK, FLOW>   "|"                     { BeginBlockScalar(); return YamlTokenType.PIPE; }
 <BLOCK, FLOW>   ":"                     { return YamlTokenType.COLON; }
 <BLOCK, FLOW>   ","                     { return YamlTokenType.COMMA; }
-<BLOCK, FLOW>   "-"                     { return YamlTokenType.MINUS; }
+<BLOCK, FLOW>   "-"                     { HandleSequenceItemIndicator(); return YamlTokenType.MINUS; }
 <BLOCK, FLOW>   "<"                     { return YamlTokenType.LT; }
 <BLOCK, FLOW>   "{"                     { PushFlowIndicator(); return YamlTokenType.LBRACE; }
 <BLOCK, FLOW>   "}"                     { PopFlowIndicator(); BeginJsonAdjacentValue(); return YamlTokenType.RBRACE; }
 <BLOCK, FLOW>   "["                     { PushFlowIndicator(); return YamlTokenType.LBRACK; }
 <BLOCK, FLOW>   "]"                     { PopFlowIndicator(); BeginJsonAdjacentValue(); return YamlTokenType.RBRACK; }
 <BLOCK, FLOW>   "%"                     { return YamlTokenType.PERCENT; }
-<BLOCK, FLOW>   "?"                     { return YamlTokenType.QUESTION; }
+<BLOCK, FLOW>   "?"                     { HandleExplicitKeyIndicator(); return YamlTokenType.QUESTION; }
 
 <YYINITIAL, DIRECTIVE, BLOCK_SCALAR_HEADER, BLOCK>
                 {C_NB_COMMENT_TEXT}     { return YamlTokenType.COMMENT; }
@@ -207,8 +207,8 @@ C_DOCUMENT_END=^"..."
 
 
 <JSON_ADJACENT_VALUE> ":"               { EndJsonAdjacentValue(); return YamlTokenType.COLON; }
-<JSON_ADJACENT_VALUE> {NEW_LINE}        { return RewindJsonAdjacentValue(); }
-<JSON_ADJACENT_VALUE> .                 { return RewindJsonAdjacentValue(); }
+<JSON_ADJACENT_VALUE> {NEW_LINE}        { return AbandonJsonAdjacentValueState(); }
+<JSON_ADJACENT_VALUE> .                 { return AbandonJsonAdjacentValueState(); }
 
 
 <FLOW>          {NS_PLAIN_ONE_LINE__IN} { return YamlTokenType.NS_PLAIN_ONE_LINE; }
@@ -216,14 +216,14 @@ C_DOCUMENT_END=^"..."
 
 
 <DIRECTIVE>     {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
-<DIRECTIVE>     {NEW_LINE}              { currentLineIndent = 0; yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
+<DIRECTIVE>     {NEW_LINE}              { HandleNewLine(); yybegin(YYINITIAL); return YamlTokenType.NEW_LINE; }
 <DIRECTIVE>     {NS_CHAR}+              { return YamlTokenType.NS_CHARS; }
 <DIRECTIVE>     {NS_WORD_CHAR}+         { return YamlTokenType.NS_WORD_CHARS; }
 <DIRECTIVE>     {NS_URI_CHAR}+          { return YamlTokenType.NS_URI_CHARS; }
 
 
 <BLOCK_SCALAR_HEADER>
-                {NEW_LINE}              { currentLineIndent = 0; yybegin(BLOCK_SCALAR); return YamlTokenType.NEW_LINE; }
+                {NEW_LINE}              { HandleNewLine(false); yybegin(BLOCK_SCALAR); return YamlTokenType.NEW_LINE; }
 <BLOCK_SCALAR_HEADER>
                 "+"                     { return YamlTokenType.PLUS; }
 <BLOCK_SCALAR_HEADER>
@@ -232,24 +232,24 @@ C_DOCUMENT_END=^"..."
                 {NS_DEC_DIGIT}          { return YamlTokenType.NS_DEC_DIGIT; }
 <BLOCK_SCALAR_HEADER>
                 {WHITESPACE}            { return YamlTokenType.WHITESPACE; }
-                
-<BLOCK_SCALAR>  {NEW_LINE}              { currentLineIndent = 0; return YamlTokenType.NEW_LINE; }
-<BLOCK_SCALAR>  ^{WHITESPACE}           { currentLineIndent = yy_buffer_end; HandleBlockScalarWhitespace(); return YamlTokenType.INDENT; } 
+
+<BLOCK_SCALAR>  {NEW_LINE}              { HandleNewLine(false); return YamlTokenType.NEW_LINE; }
+<BLOCK_SCALAR>  ^{WHITESPACE}           { currentLineIndent = yylength(); HandleBlockScalarWhitespace(); return YamlTokenType.INDENT; } 
 <BLOCK_SCALAR>  {WHITESPACE}            { HandleBlockScalarWhitespace(); return YamlTokenType.WHITESPACE; }
 <BLOCK_SCALAR>  {NB_CHAR}+              { return YamlTokenType.SCALAR_TEXT; }
-<BLOCK_SCALAR>  ^([^{WHITESPACE_CHARS}]){NB_CHAR}+
+<BLOCK_SCALAR>  ^([^{WHITESPACE_CHARS}{NEW_LINE_CHARS}]){NB_CHAR}+
                                         { return HandleBlockScalarLine(); }
 
 
 <ANCHOR_ALIAS>  {WHITESPACE}            { ResetBlockFlowState(); return YamlTokenType.WHITESPACE; }
-<ANCHOR_ALIAS>  {NEW_LINE}              { currentLineIndent = 0; ResetBlockFlowState(); return YamlTokenType.NEW_LINE; }
+<ANCHOR_ALIAS>  {NEW_LINE}              { HandleNewLine(); ResetBlockFlowState(); return YamlTokenType.NEW_LINE; }
 <ANCHOR_ALIAS>  {NS_ANCHOR_NAME}        { ResetBlockFlowState(); return YamlTokenType.NS_ANCHOR_NAME; }
 
 
 <SHORTHAND_TAG, VERBATIM_TAG>
                 {WHITESPACE}            { ResetBlockFlowState(); return YamlTokenType.WHITESPACE; }
 <SHORTHAND_TAG, VERBATIM_TAG>
-                {NEW_LINE}              { currentLineIndent = 0; ResetBlockFlowState(); return YamlTokenType.NEW_LINE; }
+                {NEW_LINE}              { HandleNewLine(); ResetBlockFlowState(); return YamlTokenType.NEW_LINE; }
 
 <SHORTHAND_TAG> "!"                     { return YamlTokenType.BANG; }
 <SHORTHAND_TAG> {NS_TAG_CHAR}+          { ResetBlockFlowState(); return YamlTokenType.NS_TAG_CHARS; }

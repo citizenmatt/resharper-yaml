@@ -51,7 +51,6 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       do
       {
-        SkipWhitespaces();
         ParseDocument();
       } while (!Builder.Eof());
 
@@ -60,16 +59,20 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private void ParseDocument()
     {
+      // TODO: Can we get indents in this prefix?
+      // TODO: Should the document prefix be part of the document node?
+      SkipWhitespaces();
+
       if (Builder.Eof())
         return;
 
-      // Make sure we don't skip leading whitespace
-      var mark = Builder.Mark();
+      var mark = Mark();
 
       ParseDirectives();
       if (GetTokenType() != YamlTokenType.DOCUMENT_END)
         ParseBlockNode();
 
+      // TODO: What about indents here?
       while (!Builder.Eof() && GetTokenTypeNoSkipWhitespace() != YamlTokenType.DOCUMENT_END)
         Advance();
 
@@ -90,7 +93,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       do
       {
         var curr = Builder.GetCurrentLexeme();
+
         ParseDirective();
+
         if (curr == Builder.GetCurrentLexeme())
           break;
       } while (!Builder.Eof() && GetTokenType() != YamlTokenType.DIRECTIVES_END);
@@ -154,16 +159,15 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       ParseNodeProperties();
 
       var tt = GetTokenType();
-      if (tt != YamlTokenType.PIPE && tt != YamlTokenType.GT)
+      if (tt == YamlTokenType.PIPE)
+        ParseLiteralScalar(mark);
+      else if (tt == YamlTokenType.GT)
+        ParseFoldedScalar(mark);
+      else
       {
         Builder.RollbackTo(mark);
         return false;
       }
-
-      if (tt == YamlTokenType.PIPE)
-        ParseLiteralScalar(mark);
-      if (tt == YamlTokenType.GT)
-        ParseFoldedScalar(mark);
 
       return true;
     }
@@ -171,15 +175,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     private void ParseLiteralScalar(int mark)
     {
       ExpectToken(YamlTokenType.PIPE);
-      ParseBlockHeader();
 
-      // TODO: Proper indent handling
-      do
-      {
-        if (GetTokenType() == YamlTokenType.INDENT)
-          Advance();
-        ExpectToken(YamlTokenType.SCALAR_TEXT);
-      } while (!Builder.Eof() && (GetTokenType() == YamlTokenType.INDENT || GetTokenType() == YamlTokenType.SCALAR_TEXT));
+      var relativeIndent = ParseBlockHeader();
+      ParseMultilineScalar(relativeIndent);
 
       DoneBeforeWhitespaces(mark, ElementType.LITERAL_SCALAR_NODE);
     }
@@ -187,46 +185,100 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     private void ParseFoldedScalar(int mark)
     {
       ExpectToken(YamlTokenType.GT);
-      ParseBlockHeader();
 
-      // TODO: Proper indent handling
-      do
-      {
-        do
-        {
-          if (GetTokenType() == YamlTokenType.INDENT)
-            Advance();
-        } while (!Builder.Eof() && GetTokenType() == YamlTokenType.INDENT);
-
-        if (GetTokenType() == YamlTokenType.SCALAR_TEXT)
-          Advance();
-
-      } while (!Builder.Eof() && (GetTokenType() == YamlTokenType.INDENT || GetTokenType() == YamlTokenType.SCALAR_TEXT));
+      var relativeIndent = ParseBlockHeader();
+      ParseMultilineScalar(relativeIndent);
 
       DoneBeforeWhitespaces(mark, ElementType.FOLDED_SCALAR_NODE);
     }
 
-    private void ParseBlockHeader()
+    private void ParseMultilineScalar(int relativeIndent)
     {
+      // TODO: Proper handling of specified indent
+      var myIndent = 0;
+      var indent = relativeIndent == -1 ? relativeIndent : relativeIndent + myIndent;
+
+      // Keep track of the end of the value. We'll roll back to here at the
+      // end. We only update it when we have valid content, or a valid indent
+      // If we get something else (new lines or invalid content) we'll advance
+      // but not move this forward, giving us somewhere to roll back to
+      var endOfValueMark = MarkNoSkipWhitespace();
+
+      // We're interested in NEW_LINE
+      SkipSingleLineWhitespace();
+      var tt = GetTokenTypeNoSkipWhitespace();
+      while (tt == YamlTokenType.SCALAR_TEXT || tt == YamlTokenType.INDENT || tt == YamlTokenType.NEW_LINE)
+      {
+        // Note that the lexer has handled some indent details for us, too.
+        // The lexer will create INDENT tokens of any leading whitespace that
+        // is equal or greater to the start of the block scalar. If it matches
+        // content before the indent, it doesn't get treated as SCALAR_TEXT
+        if (indent == -1 && tt == YamlTokenType.INDENT)
+          indent = GetTokenLength();
+
+        if (tt == YamlTokenType.SCALAR_TEXT || (tt == YamlTokenType.INDENT && GetTokenLength() > indent))
+        {
+          Advance();
+
+          // Keep track of the last place that we had either valid content or indent
+          // We'll roll back to here in the case of e.g. a too-short indent
+          Builder.Drop(endOfValueMark);
+          endOfValueMark = MarkNoSkipWhitespace();
+        }
+        else
+          Advance();
+
+        SkipSingleLineWhitespace();
+        tt = GetTokenTypeNoSkipWhitespace();
+      }
+
+      Builder.RollbackTo(endOfValueMark);
+    }
+
+    private int ParseBlockHeader()
+    {
+      var relativeIndent = -1;
+
       var tt = GetTokenType();
       if (tt != YamlTokenType.NS_DEC_DIGIT && tt != YamlTokenType.PLUS && tt != YamlTokenType.MINUS)
-        return;
+        return relativeIndent;
 
       var mark = Mark();
+
       if (tt == YamlTokenType.NS_DEC_DIGIT)
       {
-        ExpectToken(YamlTokenType.NS_DEC_DIGIT);
-        tt = GetTokenType();
-        if (tt == YamlTokenType.PLUS || tt == YamlTokenType.MINUS)
-          Advance();
+        relativeIndent = ParseDecDigit();
+        ParseChompingIndicator();
       }
       else
       {
-        Advance();  // PLUS or MINUS
-        if (GetTokenTypeNoSkipWhitespace() == YamlTokenType.NS_DEC_DIGIT)
-          Advance();
+        // We already know it's PLUS or MINUS
+        ParseChompingIndicator();
+        relativeIndent = ParseDecDigit();
       }
+
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_HEADER);
+
+      return relativeIndent;
+    }
+
+    private int ParseDecDigit()
+    {
+      var relativeIndent = -1;
+      if (GetTokenType() == YamlTokenType.NS_DEC_DIGIT)
+      {
+        if (!int.TryParse(Builder.GetTokenText(), out relativeIndent)) relativeIndent = -1;
+        Advance();
+      }
+
+      return relativeIndent;
+    }
+
+    private void ParseChompingIndicator()
+    {
+      var tt = GetTokenType();
+      if (tt == YamlTokenType.PLUS || tt == YamlTokenType.MINUS)
+        Advance();
     }
 
     private bool TryParseBlockCollection()
@@ -256,6 +308,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       {
         ParseBlockSequenceItem();
       } while (!Builder.Eof() && (GetTokenType() == YamlTokenType.MINUS || LookAhead(1) == YamlTokenType.MINUS));
+
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_SEQUENCE_NODE);
     }
 
@@ -315,11 +368,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       if (tt == YamlTokenType.ASTERISK)
         ParseAliasNode();
       else
-      {
-        var mark = Mark();
-        ParseNodeProperties();
-        ParseFlowContent(mark);
-      }
+        ParseFlowContent();
     }
 
     private void ParseAliasNode()
@@ -448,8 +497,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       DoneBeforeWhitespaces(mark, ElementType.NON_SPECIFIC_TAG_PROPERTY);
     }
 
-    private void ParseFlowContent(int mark)
+    private void ParseFlowContent()
     {
+      var mark = Mark();
+
+      ParseNodeProperties();
+
       CompositeNodeType elementType;
 
       // TODO: Proper handling of indents!
@@ -546,6 +599,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         Advance();
     }
 
+    private int GetTokenLength()
+    {
+      var token = Builder.GetToken();
+      return token.End - token.Start;
+    }
+
     private TokenNodeType GetTokenTypeNoSkipWhitespace()
     {
       // this.GetTokenType() calls SkipWhitespace() first
@@ -565,6 +624,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       else
         Advance();
       return true;
+    }
+
+    private int MarkNoSkipWhitespace()
+    {
+      // this.Mark() calls SkipWhitespace() first
+      return Builder.Mark();
     }
 
     private void SkipSingleLineWhitespace()

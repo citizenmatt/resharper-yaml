@@ -17,9 +17,9 @@ IYamlFile
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:as)
-    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-    YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:space)
+      YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:as)
+      NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+      YamlTokenType+GenericTokenElement(type:INDENT, text:  )
+      YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:space)
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
 

@@ -90,6 +90,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     // ReSharper disable InconsistentNaming
     private TokenNodeType currentTokenType;
 
+    private int lastNewLineOffset;
     private int currentLineIndent;
 
     // The indent of the indicator of a block scalar. The contents must be more
@@ -98,18 +99,18 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     // root of the doucment. This allows the indent to also be at column 0 (the
     // parent node is treated as being at column -1)
     // TODO: Use the indentation indicator value to set this
-    private int blockScalarIndicatorIndent;
-    private int blockScalarIndent;
+
+    private int parentNodeIndent;
 
     // The number of unclosed LBRACE and LBRACK. flowLevel == 0 means block context
-    private int flowLevel = 0;
+    private int flowLevel;
 
     private struct TokenPosition
     {
       public TokenNodeType CurrentTokenType;
+      public int LastNewLineOffset;
       public int CurrentLineIndent;
-      public int BlockScalarIndicatorIndent;
-      public int BlockScalarIndent;
+      public int ParentNodeIndent;
       public int FlowLevel;
       public int YyBufferIndex;
       public int YyBufferStart;
@@ -143,9 +144,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       {
         TokenPosition tokenPosition;
         tokenPosition.CurrentTokenType = currentTokenType;
+        tokenPosition.LastNewLineOffset = lastNewLineOffset;
         tokenPosition.CurrentLineIndent = currentLineIndent;
-        tokenPosition.BlockScalarIndicatorIndent = blockScalarIndicatorIndent;
-        tokenPosition.BlockScalarIndent = blockScalarIndent;
+        tokenPosition.ParentNodeIndent = parentNodeIndent;
         tokenPosition.FlowLevel = flowLevel;
         tokenPosition.YyBufferIndex = yy_buffer_index;
         tokenPosition.YyBufferStart = yy_buffer_start;
@@ -157,9 +158,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       {
         var tokenPosition = (TokenPosition) value;
         currentTokenType = tokenPosition.CurrentTokenType;
+        lastNewLineOffset = tokenPosition.LastNewLineOffset;
         currentLineIndent = tokenPosition.CurrentLineIndent;
-        blockScalarIndicatorIndent = tokenPosition.BlockScalarIndicatorIndent;
-        blockScalarIndent = tokenPosition.BlockScalarIndent;
+        parentNodeIndent = tokenPosition.ParentNodeIndent;
         flowLevel = tokenPosition.FlowLevel;
         yy_buffer_index = tokenPosition.YyBufferIndex;
         yy_buffer_start = tokenPosition.YyBufferStart;
@@ -245,6 +246,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     private void PushFlowIndicator()
     {
       flowLevel++;
+      parentNodeIndent = yy_buffer_start - lastNewLineOffset;
       yybegin(FLOW);
     }
 
@@ -260,36 +262,53 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       yybegin(IsBlock ? BLOCK : FLOW);
     }
 
+    private void HandleNewLine(bool resetParentNodeIndent = true)
+    {
+      currentLineIndent = 0;
+      if (resetParentNodeIndent)
+        parentNodeIndent = -1;
+      lastNewLineOffset = yy_buffer_end;
+    }
+
     private TokenNodeType HandleImplicitKey()
     {
+      parentNodeIndent = yy_buffer_start - lastNewLineOffset;
+
       // We special case implicit keys as a single line ns-plain followed by a colon
       // But we want to return that as separate tokens. So match it, rewind and let
       // the next pass handle the whitespace and colon
+      // TODO: This doesn't reset line indents or last new line offset!!
       RewindChar();
       RewindWhitespace();
       return YamlTokenType.NS_PLAIN_ONE_LINE;
     }
 
+    private void HandleExplicitKeyIndicator()
+    {
+      parentNodeIndent = yy_buffer_start - lastNewLineOffset;
+    }
+
+    private void HandleSequenceItemIndicator()
+    {
+      parentNodeIndent = yy_buffer_start - lastNewLineOffset;
+    }
+
     private void BeginBlockScalar()
     {
-      blockScalarIndicatorIndent = currentLineIndent;
-      blockScalarIndent = -1;
+      // Note that block scalar indent is based on the parent node, not the indent
+      // of the indciator
       yybegin(BLOCK_SCALAR_HEADER);
     }
 
     private void HandleBlockScalarWhitespace()
     {
-      // If the content indent hasn't been set, and we're indented in relation to the
-      // indicator, indent the content, otherwise, terminate the block scalar
-      if (blockScalarIndent == -1 && currentLineIndent >= blockScalarIndicatorIndent)
-        blockScalarIndent = currentLineIndent;
-      else if (currentLineIndent <= blockScalarIndent)
+      if (currentLineIndent <= parentNodeIndent)
         ResetBlockFlowState();
     }
 
     private TokenNodeType HandleBlockScalarLine()
     {
-      if (currentLineIndent <= blockScalarIndent)
+      if (currentLineIndent <= parentNodeIndent)
       {
         EndBlockScalar();
         RewindToken();
@@ -301,7 +320,6 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private void EndBlockScalar()
     {
-      blockScalarIndent = 0;
       ResetBlockFlowState();
     }
 
@@ -315,7 +333,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       ResetBlockFlowState();
     }
 
-    private TokenNodeType RewindJsonAdjacentValue()
+    private TokenNodeType AbandonJsonAdjacentValueState()
     {
       RewindToken();
       ResetBlockFlowState();
