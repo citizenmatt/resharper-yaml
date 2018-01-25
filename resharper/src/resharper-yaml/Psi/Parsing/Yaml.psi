@@ -150,6 +150,7 @@ interface node
   // Flow collections
   | flowSequenceNode
   | flowMappingNode
+  | flowPairNode
 ;
 
 nodeProperties
@@ -266,6 +267,7 @@ foldedScalarNode
 blockSequenceNode
 :
   // TODO: One or many, or zero or many?
+  // TODO: Use LIST?
   blockSequenceItemNode<ITEMS, Items>+
 ;
 
@@ -340,7 +342,7 @@ flowSequenceNode
 :
   nodeProperties<YAML_PROPERTIES, Properties>?
   LBRACK<LBRACK, LBrack>
-  // TODO: content
+  (LIST node<NODE, Nodes> SEP COMMA<COMMA, Comma>)?
   RBRACK<RBRACK, RBrack>
 ;
 
@@ -348,6 +350,13 @@ flowMappingNode
 :
   nodeProperties<YAML_PROPERTIES, Properties>?
   LBRACE<LBRACE, LBrace>
-  // TODO: content
+  (LIST node<NODE, Nodes> SEP COMMA<COMMA, Comma>)?
   RBRACE<RBRACE, RBrace>
+;
+
+flowPairNode
+:
+  node<NODE, Node>
+  COLON<YAML_INDICATOR, ColonIndicator>
+  node<NODE, Node>
 ;

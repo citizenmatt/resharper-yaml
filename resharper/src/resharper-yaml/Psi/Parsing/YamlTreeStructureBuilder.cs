@@ -485,24 +485,65 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private CompositeNodeType ParseFlowSequence()
     {
-      do
+      ExpectToken(YamlTokenType.LBRACK);
+
+      ParseFlowSequenceEntry();
+      if (GetTokenType() == YamlTokenType.COMMA)
       {
+        do
+        {
+          ExpectToken(YamlTokenType.COMMA);
+          if (GetTokenType() != YamlTokenType.RBRACK)
+            ParseFlowSequenceEntry();
+        } while (!Builder.Eof() && GetTokenType() != YamlTokenType.RBRACK && GetTokenType() == YamlTokenType.COMMA);
+      }
+
+      while (GetTokenType() != YamlTokenType.RBRACK)
         Advance();
-      } while (!Builder.Eof() && GetTokenType() != YamlTokenType.RBRACK);
-      Advance();  // RBRACK
+      ExpectToken(YamlTokenType.RBRACK);
 
       return ElementType.FLOW_SEQUENCE_NODE;
     }
 
+    private void ParseFlowSequenceEntry()
+    {
+      if (!TryParseFlowPair())
+        ParseFlowNode();
+    }
+
+    private bool TryParseFlowPair()
+    {
+      // TODO: Compact flow pair notation
+      return false;
+    }
+
     private CompositeNodeType ParseFlowMapping()
     {
-      do
+      ExpectToken(YamlTokenType.LBRACE);
+
+      ParseFlowMapEntry();
+      if (GetTokenType() == YamlTokenType.COMMA)
       {
+        do
+        {
+          ExpectToken(YamlTokenType.COMMA);
+          if (GetTokenType() != YamlTokenType.RBRACE)
+            ParseFlowMapEntry();
+        } while (!Builder.Eof() && GetTokenType() != YamlTokenType.RBRACE);
+      }
+
+      while (GetTokenType() != YamlTokenType.RBRACE)
         Advance();
-      } while (!Builder.Eof() && GetTokenType() != YamlTokenType.RBRACE);
-      Advance();  // RBRACE
+      ExpectToken(YamlTokenType.RBRACE);
 
       return ElementType.FLOW_MAPPING_NODE;
+    }
+
+    private void ParseFlowMapEntry()
+    {
+      // TODO: Parse flow map entry
+      while (!Builder.Eof() && GetTokenType() != YamlTokenType.COMMA && GetTokenType() != YamlTokenType.RBRACE)
+        Advance();
     }
 
     private TokenNodeType GetTokenTypeNoSkipWhitespace()
