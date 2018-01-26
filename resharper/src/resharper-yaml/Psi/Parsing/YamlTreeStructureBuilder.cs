@@ -10,6 +10,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 {
   internal class YamlTreeStructureBuilder : TreeStructureBuilderBase, IPsiBuilderTokenFactory
   {
+    private int myCurrentLineIndent = 0;
+
     public YamlTreeStructureBuilder(ILexer<int> lexer, Lifetime lifetime)
       : base(lifetime)
     {
@@ -61,7 +63,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       // TODO: Can we get indents in this prefix?
       // TODO: Should the document prefix be part of the document node?
-      SkipWhitespaces();
+      SkipWhitespaceAndIndent();
 
       if (Builder.Eof())
         return;
@@ -72,8 +74,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       if (GetTokenType() != YamlTokenType.DOCUMENT_END)
         ParseBlockNode(-1, false);
 
-      // TODO: What about indents here?
-      while (!Builder.Eof() && GetTokenTypeNoSkipWhitespace() != YamlTokenType.DOCUMENT_END)
+      while (!Builder.Eof() && GetTokenType() != YamlTokenType.DOCUMENT_END)
         Advance();
 
       if (!Builder.Eof())
@@ -123,20 +124,10 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         SkipSingleLineWhitespace();
       } while (parsed && !Builder.Eof() && GetTokenTypeNoSkipWhitespace() != YamlTokenType.NEW_LINE);
 
-      if (!Builder.Eof())
-        Advance();  // NEW_LINE
+      Advance();  // NEW_LINE
 
       // Consume following comment lines
-      do
-      {
-        var curr = Builder.GetCurrentLexeme();
-        SkipWhitespaces();
-        if (GetTokenType() == YamlTokenType.INDENT)
-          Builder.AdvanceLexer();
-        SkipWhitespaces();
-        if (curr == Builder.GetCurrentLexeme())
-          break;
-      } while (!Builder.Eof() && WhitespacesSkipped);
+      SkipWhitespaceAndIndent();
 
       Done(mark, ElementType.DIRECTIVE);
     }
@@ -157,7 +148,11 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       var mark = Mark();
 
+      SkipWhitespaceAndIndent();
+
       ParseNodeProperties();
+
+      SkipWhitespaceAndIndent();
 
       var tt = GetTokenType();
       if (tt == YamlTokenType.PIPE)
@@ -178,7 +173,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       ExpectToken(YamlTokenType.PIPE);
 
       var scalarIndent = ParseBlockHeader(indent);
-      ParseMultilineScalar(scalarIndent);
+      ParseMultilineScalarText(scalarIndent);
 
       DoneBeforeWhitespaces(mark, ElementType.LITERAL_SCALAR_NODE);
     }
@@ -188,12 +183,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       ExpectToken(YamlTokenType.GT);
 
       var scalarIndent = ParseBlockHeader(indent);
-      ParseMultilineScalar(scalarIndent);
+      ParseMultilineScalarText(scalarIndent);
 
       DoneBeforeWhitespaces(mark, ElementType.FOLDED_SCALAR_NODE);
     }
 
-    private void ParseMultilineScalar(int indent)
+    private void ParseMultilineScalarText(int indent)
     {
       // Keep track of the end of the value. We'll roll back to here at the
       // end. We only update it when we have valid content, or a valid indent
@@ -282,7 +277,11 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       var mark = Mark();
 
+      SkipWhitespaceAndIndent();
+
       ParseNodeProperties();
+
+      SkipWhitespaceAndIndent();
 
       var tt = GetTokenType();
       if (tt == YamlTokenType.MINUS)
@@ -317,13 +316,10 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       var mark = Mark();
 
-      if (GetTokenType() == YamlTokenType.INDENT)
-      {
-        indent += GetTokenLength();
-        Advance();
-      }
-
+      SkipWhitespaceAndIndent();
       ExpectToken(YamlTokenType.MINUS);
+
+      // TODO: How do we increment this indent?
       ParseBlockNode(indent, true);
 
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_SEQUENCE_ITEM_NODE);
@@ -343,15 +339,13 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       var mark = Mark();
 
-      if (GetTokenType() == YamlTokenType.INDENT)
-      {
-        indent += GetTokenLength();
-        Advance();
-      }
+      SkipWhitespaceAndIndent();
 
       // TODO: Handle implicit keys
       // TODO: Handle compact notation
       ExpectToken(YamlTokenType.QUESTION);
+      SkipWhitespaceAndIndent();
+      // TODO: Shouldn't this value get incremented?
       ParseBlockNode(indent, false);
 
       if (indent > 0)
@@ -517,16 +511,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       ParseNodeProperties();
 
+      SkipWhitespaceAndIndent();
+
       CompositeNodeType elementType;
-
-
-
-      if (GetTokenType() == YamlTokenType.INDENT)
-        Advance();
-
-
-
-
       var tt = GetTokenType();
       if (tt == YamlTokenType.LBRACK)
         elementType = ParseFlowSequence(indent);
@@ -542,12 +529,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         Advance();
         elementType = ElementType.SINGLE_QUOTED_SCALAR_NODE;
       }
-      else if (tt == YamlTokenType.NS_PLAIN_MULTI_LINE || tt == YamlTokenType.NS_PLAIN_ONE_LINE)
-      {
-        // TODO: Multi-line and indents. Woohoo!
-        Advance();
-        elementType = ElementType.PLAIN_SCALAR_NODE;
-      }
+      else if (IsPlainScalarToken(tt))
+        elementType = ParseMultilinePlainScalar(indent);
       else
         elementType = ElementType.EMPTY_SCALAR_NODE;
 
@@ -617,6 +600,58 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         Advance();
     }
 
+    private CompositeNodeType ParseMultilinePlainScalar(int indent)
+    {
+      var endOfValueMark = MarkNoSkipWhitespace();
+
+      var tt = GetTokenTypeNoSkipWhitespace();
+      while (IsPlainScalarToken(tt) || tt == YamlTokenType.INDENT || tt == YamlTokenType.NEW_LINE)
+      {
+        Advance();
+
+        if (IsPlainScalarToken(tt))
+        {
+          if (myCurrentLineIndent < indent)
+            break;
+
+          Builder.Drop(endOfValueMark);
+          endOfValueMark = MarkNoSkipWhitespace();
+        }
+
+        SkipSingleLineWhitespace();
+        tt = GetTokenTypeNoSkipWhitespace();
+      }
+
+      Builder.RollbackTo(endOfValueMark);
+
+      return ElementType.PLAIN_SCALAR_NODE;
+    }
+
+    private static bool IsPlainScalarToken(TokenNodeType tt)
+    {
+      return tt == YamlTokenType.NS_PLAIN_ONE_LINE || tt == YamlTokenType.NS_PLAIN_MULTI_LINE;
+    }
+
+    private new void Advance()
+    {
+      if (Builder.Eof())
+        return;
+
+      var tt = Builder.GetTokenType();
+      if (tt == YamlTokenType.NEW_LINE)
+        myCurrentLineIndent = 0;
+      else if (tt == YamlTokenType.INDENT)
+        myCurrentLineIndent = GetTokenLength();
+      base.Advance();
+    }
+
+    protected override void SkipWhitespaces()
+    {
+      base.SkipWhitespaces();
+      if (JustSkippedNewLine)
+        myCurrentLineIndent = 0;
+    }
+
     private int GetTokenLength()
     {
       var token = Builder.GetToken();
@@ -648,6 +683,26 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       // this.Mark() calls SkipWhitespace() first
       return Builder.Mark();
+    }
+
+    private void SkipWhitespaceAndIndent()
+    {
+      while (!Builder.Eof() && IsWhitespaceOrIndent())
+      {
+        var curr = Builder.GetCurrentLexeme();
+
+        Advance();
+
+        if (curr == Builder.GetCurrentLexeme())
+          break;
+      }
+    }
+
+    private bool IsWhitespaceOrIndent()
+    {
+      // GetTokenType skips WS, NL and comments, but let's be explicit
+      var tt = GetTokenTypeNoSkipWhitespace();
+      return tt == YamlTokenType.INDENT || tt == YamlTokenType.NEW_LINE || tt.IsComment || tt.IsWhitespace;
     }
 
     private void SkipSingleLineWhitespace()
