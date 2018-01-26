@@ -70,7 +70,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       ParseDirectives();
       if (GetTokenType() != YamlTokenType.DOCUMENT_END)
-        ParseBlockNode();
+        ParseBlockNode(-1, false);
 
       // TODO: What about indents here?
       while (!Builder.Eof() && GetTokenTypeNoSkipWhitespace() != YamlTokenType.DOCUMENT_END)
@@ -141,18 +141,19 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       Done(mark, ElementType.DIRECTIVE);
     }
 
-    private void ParseBlockNode()
+    // block-in being "inside a block sequence"
+    private void ParseBlockNode(int indent, bool isBlockIn)
     {
-      if (!TryParseBlockInBlock())
-        ParseFlowInBlock();
+      if (!TryParseBlockInBlock(indent, isBlockIn))
+        ParseFlowInBlock(indent);
     }
 
-    private bool TryParseBlockInBlock()
+    private bool TryParseBlockInBlock(int indent, bool isBlockIn)
     {
-      return TryParseBlockScalar() || TryParseBlockCollection();
+      return TryParseBlockScalar(indent) || TryParseBlockCollection(indent, isBlockIn);
     }
 
-    private bool TryParseBlockScalar()
+    private bool TryParseBlockScalar(int indent)
     {
       var mark = Mark();
 
@@ -160,9 +161,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       var tt = GetTokenType();
       if (tt == YamlTokenType.PIPE)
-        ParseLiteralScalar(mark);
+        ParseLiteralScalar(indent, mark);
       else if (tt == YamlTokenType.GT)
-        ParseFoldedScalar(mark);
+        ParseFoldedScalar(indent, mark);
       else
       {
         Builder.RollbackTo(mark);
@@ -172,32 +173,28 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return true;
     }
 
-    private void ParseLiteralScalar(int mark)
+    private void ParseLiteralScalar(int indent, int mark)
     {
       ExpectToken(YamlTokenType.PIPE);
 
-      var relativeIndent = ParseBlockHeader();
-      ParseMultilineScalar(relativeIndent);
+      var scalarIndent = ParseBlockHeader(indent);
+      ParseMultilineScalar(scalarIndent);
 
       DoneBeforeWhitespaces(mark, ElementType.LITERAL_SCALAR_NODE);
     }
 
-    private void ParseFoldedScalar(int mark)
+    private void ParseFoldedScalar(int indent, int mark)
     {
       ExpectToken(YamlTokenType.GT);
 
-      var relativeIndent = ParseBlockHeader();
-      ParseMultilineScalar(relativeIndent);
+      var scalarIndent = ParseBlockHeader(indent);
+      ParseMultilineScalar(scalarIndent);
 
       DoneBeforeWhitespaces(mark, ElementType.FOLDED_SCALAR_NODE);
     }
 
-    private void ParseMultilineScalar(int relativeIndent)
+    private void ParseMultilineScalar(int indent)
     {
-      // TODO: Proper handling of specified indent
-      var myIndent = 0;
-      var indent = relativeIndent == -1 ? relativeIndent : relativeIndent + myIndent;
-
       // Keep track of the end of the value. We'll roll back to here at the
       // end. We only update it when we have valid content, or a valid indent
       // If we get something else (new lines or invalid content) we'll advance
@@ -235,26 +232,25 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       Builder.RollbackTo(endOfValueMark);
     }
 
-    private int ParseBlockHeader()
+    private int ParseBlockHeader(int indent)
     {
-      var relativeIndent = -1;
-
       var tt = GetTokenType();
       if (tt != YamlTokenType.NS_DEC_DIGIT && tt != YamlTokenType.PLUS && tt != YamlTokenType.MINUS)
-        return relativeIndent;
+        return -1;
 
       var mark = Mark();
 
+      var relativeIndent = -1;
       if (tt == YamlTokenType.NS_DEC_DIGIT)
       {
-        relativeIndent = ParseDecDigit();
+        relativeIndent = ParseDecDigit(indent);
         ParseChompingIndicator();
       }
       else
       {
         // We already know it's PLUS or MINUS
         ParseChompingIndicator();
-        relativeIndent = ParseDecDigit();
+        relativeIndent = ParseDecDigit(indent);
       }
 
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_HEADER);
@@ -262,16 +258,17 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return relativeIndent;
     }
 
-    private int ParseDecDigit()
+    private int ParseDecDigit(int indent)
     {
-      var relativeIndent = -1;
       if (GetTokenType() == YamlTokenType.NS_DEC_DIGIT)
       {
-        if (!int.TryParse(Builder.GetTokenText(), out relativeIndent)) relativeIndent = -1;
+        int.TryParse(Builder.GetTokenText(), out var relativeIndent);
         Advance();
+        // TODO: Is this correct? It needs to be the indent of its parent node. Is that what we've got here?
+        return indent + relativeIndent;
       }
 
-      return relativeIndent;
+      return -1;
     }
 
     private void ParseChompingIndicator()
@@ -281,7 +278,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         Advance();
     }
 
-    private bool TryParseBlockCollection()
+    private bool TryParseBlockCollection(int indent, bool isBlockIn)
     {
       var mark = Mark();
 
@@ -289,9 +286,13 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       var tt = GetTokenType();
       if (tt == YamlTokenType.MINUS)
-        ParseBlockSequence(mark);
+      {
+        // Nested block sequences may be indented one less space, because people
+        // intuitively see `-` as indent
+        ParseBlockSequence(isBlockIn ? indent - 1 : indent, mark);
+      }
       else if (tt == YamlTokenType.QUESTION)
-        ParseBlockMapping(mark);
+        ParseBlockMapping(indent, mark);
       else
       {
         // TODO: Implicit mapping keys
@@ -302,51 +303,64 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return true;
     }
 
-    private void ParseBlockSequence(int mark)
+    private void ParseBlockSequence(int indent, int mark)
     {
       do
       {
-        ParseBlockSequenceItem();
+        ParseBlockSequenceItem(indent);
       } while (!Builder.Eof() && (GetTokenType() == YamlTokenType.MINUS || LookAhead(1) == YamlTokenType.MINUS));
 
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_SEQUENCE_NODE);
     }
 
-    private void ParseBlockSequenceItem()
+    private void ParseBlockSequenceItem(int indent)
     {
       var mark = Mark();
 
-      // TODO: Proper indent handling!
       if (GetTokenType() == YamlTokenType.INDENT)
+      {
+        indent += GetTokenLength();
         Advance();
+      }
+
       ExpectToken(YamlTokenType.MINUS);
-      ParseBlockNode();
+      ParseBlockNode(indent, true);
 
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_SEQUENCE_ITEM_NODE);
     }
 
-    private void ParseBlockMapping(int mark)
+    private void ParseBlockMapping(int indent, int mark)
     {
       do
       {
-        ParseBlockMappingPair();
+        ParseBlockMappingPair(indent);
       } while (!Builder.Eof());
+
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_MAPPING_NODE);
     }
 
-    private void ParseBlockMappingPair()
+    private void ParseBlockMappingPair(int indent)
     {
       var mark = Mark();
 
-      // TODO: Proper indent handling!
       if (GetTokenType() == YamlTokenType.INDENT)
+      {
+        indent += GetTokenLength();
         Advance();
+      }
+
+      // TODO: Handle implicit keys
+      // TODO: Handle compact notation
       ExpectToken(YamlTokenType.QUESTION);
-      ParseBlockNode();
+      ParseBlockNode(indent, false);
+
+      if (indent > 0)
+        ExpectToken(YamlTokenType.INDENT);
+
       if (GetTokenType() == YamlTokenType.COLON)
       {
         ExpectToken(YamlTokenType.COLON);
-        ParseBlockNode();
+        ParseBlockNode(indent, false);
       }
       else
       {
@@ -357,25 +371,25 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_MAPPING_PAIR_NODE);
     }
 
-    private void ParseFlowInBlock()
+    private void ParseFlowInBlock(int indent)
     {
-      ParseFlowNode();
+      ParseFlowNode(indent + 1);
     }
 
-    private void ParseFlowNode()
+    private void ParseFlowNode(int indent)
     {
       var tt = GetTokenType();
       if (tt == YamlTokenType.ASTERISK)
         ParseAliasNode();
       else
-        ParseFlowContent();
+        ParseFlowContent(indent);
     }
 
     private void ParseAliasNode()
     {
       var mark = Mark();
       ExpectToken(YamlTokenType.ASTERISK);
-      ExpectToken(YamlTokenType.NS_ANCHOR_NAME);
+      ExpectTokenNoSkipWhitespace(YamlTokenType.NS_ANCHOR_NAME);
       DoneBeforeWhitespaces(mark, ElementType.ALIAS_NODE);
     }
 
@@ -497,7 +511,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       DoneBeforeWhitespaces(mark, ElementType.NON_SPECIFIC_TAG_PROPERTY);
     }
 
-    private void ParseFlowContent()
+    private void ParseFlowContent(int indent)
     {
       var mark = Mark();
 
@@ -505,15 +519,19 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       CompositeNodeType elementType;
 
-      // TODO: Proper handling of indents!
+
+
       if (GetTokenType() == YamlTokenType.INDENT)
         Advance();
 
+
+
+
       var tt = GetTokenType();
       if (tt == YamlTokenType.LBRACK)
-        elementType = ParseFlowSequence();
+        elementType = ParseFlowSequence(indent);
       else if (tt == YamlTokenType.LBRACE)
-        elementType = ParseFlowMapping();
+        elementType = ParseFlowMapping(indent);
       else if (tt == YamlTokenType.C_DOUBLE_QUOTED_MULTI_LINE || tt == YamlTokenType.C_DOUBLE_QUOTED_SINGLE_LINE)
       {
         Advance();
@@ -536,18 +554,18 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       DoneBeforeWhitespaces(mark, elementType);
     }
 
-    private CompositeNodeType ParseFlowSequence()
+    private CompositeNodeType ParseFlowSequence(int indent)
     {
       ExpectToken(YamlTokenType.LBRACK);
 
-      ParseFlowSequenceEntry();
+      ParseFlowSequenceEntry(indent);
       if (GetTokenType() == YamlTokenType.COMMA)
       {
         do
         {
           ExpectToken(YamlTokenType.COMMA);
           if (GetTokenType() != YamlTokenType.RBRACK)
-            ParseFlowSequenceEntry();
+            ParseFlowSequenceEntry(indent);
         } while (!Builder.Eof() && GetTokenType() != YamlTokenType.RBRACK && GetTokenType() == YamlTokenType.COMMA);
       }
 
@@ -558,19 +576,19 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return ElementType.FLOW_SEQUENCE_NODE;
     }
 
-    private void ParseFlowSequenceEntry()
+    private void ParseFlowSequenceEntry(int indent)
     {
-      if (!TryParseFlowPair())
-        ParseFlowNode();
+      if (!TryParseFlowPair(indent))
+        ParseFlowNode(indent);
     }
 
-    private bool TryParseFlowPair()
+    private bool TryParseFlowPair(int indent)
     {
       // TODO: Compact flow pair notation
       return false;
     }
 
-    private CompositeNodeType ParseFlowMapping()
+    private CompositeNodeType ParseFlowMapping(int indent)
     {
       ExpectToken(YamlTokenType.LBRACE);
 
