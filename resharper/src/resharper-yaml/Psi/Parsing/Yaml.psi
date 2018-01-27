@@ -133,24 +133,22 @@ interface node
   // Block scalars
   literalScalarNode
   | foldedScalarNode
-  
+
   // Block collections
   | blockSequenceNode
-  | blockSequenceItemNode
   | blockMappingNode
-  | blockMappingPairNode
+
+  | aliasNode
 
   // Flow scalars
-  | aliasNode
   | plainScalarNode
   | singleQuotedScalarNode
   | doubleQuotedScalarNode
   | emptyScalarNode
-  
+
   // Flow collections
   | flowSequenceNode
   | flowMappingNode
-  | flowPairNode
 ;
 
 nodeProperties
@@ -266,24 +264,25 @@ foldedScalarNode
 
 blockSequenceNode
 :
-  // TODO: One or many, or zero or many?
-  // TODO: Use LIST?
-  blockSequenceItemNode<ITEMS, Items>+
+  // These can actually be zero or more, but if we have this, blockMappingNode
+  // and emptyScalarNode with potentially empty contents, PsiGen generates bad
+  // code. It doesn't affect the shape of the generated PSI types
+  sequenceItem<ITEMS, Items>+
 ;
 
-blockSequenceItemNode
+blockMappingNode
+:
+  blockMappingPair<PAIRS, Pairs>+
+;
+
+sequenceItem
 :
   INDENT<YAML_INDENT, Indent>
   MINUS<YAML_INDICATOR, MinusIndicator>
   node<VALUE, Value>
 ;
 
-blockMappingNode
-:
-  blockMappingPairNode<PAIRS, Pairs>+
-;
-
-blockMappingPairNode
+blockMappingPair
 :
   INDENT<YAML_INDENT, Indent>
   QUESTION<QUESTION_INDICATOR, QuestionIndicator>
@@ -308,7 +307,6 @@ aliasNode
 plainScalarNode
 :
   nodeProperties<YAML_PROPERTIES, Properties>?
-  // TODO: INDENTS!!!!
   NS_PLAIN_ONE_LINE<YAML_TEXT, Text>
   | NS_PLAIN_MULTI_LINE<YAML_TEXT, Text>
 ;
@@ -332,6 +330,7 @@ emptyScalarNode
   nodeProperties<YAML_PROPERTIES, Properties>?
 ;
 
+
 // **************************************************************************
 //
 // Flow collection nodes
@@ -354,7 +353,7 @@ flowMappingNode
   RBRACE<RBRACE, RBrace>
 ;
 
-flowPairNode
+flowPair
 :
   node<NODE, Node>
   COLON<YAML_INDICATOR, ColonIndicator>

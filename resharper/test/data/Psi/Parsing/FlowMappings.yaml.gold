@@ -2,7 +2,7 @@
 IYamlFile
   IYamlDocument
     IBlockSequenceNode
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IFlowMappingNode
@@ -25,7 +25,7 @@ IYamlFile
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+FixedTokenElement(type:RBRACE, text:})
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IFlowMappingNode

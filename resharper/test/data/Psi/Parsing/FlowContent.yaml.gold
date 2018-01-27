@@ -2,7 +2,7 @@
 IYamlFile
   IYamlDocument
     IBlockSequenceNode
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IFlowSequenceNode
@@ -17,7 +17,7 @@ IYamlFile
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+FixedTokenElement(type:RBRACK, text:])
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IFlowMappingNode
@@ -30,19 +30,19 @@ IYamlFile
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+FixedTokenElement(type:RBRACE, text:})
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IDoubleQuotedScalarNode
           YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"a")
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         ISingleQuotedScalarNode
           YamlTokenType+GenericTokenElement(type:C_SINGLE_QUOTED_SINGLE_LINE, text:'b')
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IPlainScalarNode

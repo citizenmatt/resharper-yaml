@@ -322,7 +322,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       // TODO: How do we increment this indent?
       ParseBlockNode(indent, true);
 
-      DoneBeforeWhitespaces(mark, ElementType.BLOCK_SEQUENCE_ITEM_NODE);
+      DoneBeforeWhitespaces(mark, ElementType.SEQUENCE_ITEM);
     }
 
     private void ParseBlockMapping(int indent, int mark)
@@ -362,7 +362,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         DoneBeforeWhitespaces(emptyMark, ElementType.EMPTY_SCALAR_NODE);
       }
 
-      DoneBeforeWhitespaces(mark, ElementType.BLOCK_MAPPING_PAIR_NODE);
+      DoneBeforeWhitespaces(mark, ElementType.BLOCK_MAPPING_PAIR);
     }
 
     private void ParseFlowInBlock(int indent)

@@ -2,14 +2,14 @@
 IYamlFile
   IYamlDocument
     IBlockSequenceNode
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         NewLine(type:NEW_LINE, text:\n) spaces: "\n"
         IDoubleQuotedScalarNode
           YamlTokenType+GenericTokenElement(type:INDENT, text:  )
           YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"flow in block")
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IFoldedScalarNode
@@ -18,7 +18,7 @@ IYamlFile
           YamlTokenType+GenericTokenElement(type:INDENT, text: )
           YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:Block scalar)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IPlainScalarNode

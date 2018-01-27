@@ -2,7 +2,7 @@
 IYamlFile
   IYamlDocument
     IBlockMappingNode
-      IBlockMappingPairNode
+      IBlockMappingPair
         YamlTokenType+FixedTokenElement(type:QUESTION, text:?)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IPlainScalarNode
@@ -11,7 +11,7 @@ IYamlFile
         Comment(type:COMMENT, text:# Empty value) spaces: "# Empty value"
         NewLine(type:NEW_LINE, text:\n) spaces: "\n"
         IEmptyScalarNode
-      IBlockMappingPairNode
+      IBlockMappingPair
         YamlTokenType+FixedTokenElement(type:QUESTION, text:?)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         ILiteralScalarNode
@@ -23,7 +23,7 @@ IYamlFile
         YamlTokenType+FixedTokenElement(type:COLON, text::)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IBlockSequenceNode
-          IBlockSequenceItemNode
+          ISequenceItem
             YamlTokenType+FixedTokenElement(type:MINUS, text:-)
             Whitespace(type:WHITESPACE, text: ) spaces: " "
             IPlainScalarNode
@@ -31,7 +31,7 @@ IYamlFile
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           Comment(type:COMMENT, text:# Explicit compact) spaces: "# Explicit compact"
           NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-          IBlockSequenceItemNode
+          ISequenceItem
             YamlTokenType+GenericTokenElement(type:INDENT, text:  )
             YamlTokenType+FixedTokenElement(type:MINUS, text:-)
             Whitespace(type:WHITESPACE, text: ) spaces: " "

@@ -2,7 +2,7 @@
 IYamlFile
   IYamlDocument
     IBlockSequenceNode
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         ILiteralScalarNode
@@ -13,7 +13,7 @@ IYamlFile
           YamlTokenType+GenericTokenElement(type:INDENT, text: )
           YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:literal)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IFoldedScalarNode
@@ -26,7 +26,7 @@ IYamlFile
           YamlTokenType+GenericTokenElement(type:INDENT, text:  )
           YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:folded)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         ILiteralScalarNode
@@ -40,7 +40,7 @@ IYamlFile
           YamlTokenType+GenericTokenElement(type:SCALAR_TEXT, text:keep)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      IBlockSequenceItemNode
+      ISequenceItem
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IFoldedScalarNode
