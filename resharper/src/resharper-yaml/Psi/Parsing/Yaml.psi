@@ -341,8 +341,21 @@ flowSequenceNode
 :
   nodeProperties<YAML_PROPERTIES, Properties>?
   LBRACK<LBRACK, LBrack>
-  (LIST node<NODE, Nodes> SEP COMMA<COMMA, Comma>)?
+  (LIST flowSequenceEntry<ENTRY, Entries> SEP COMMA<COMMA, Comma>)?
   RBRACK<RBRACK, RBrack>
+;
+
+flowSequenceEntry
+:
+  flowPair<PAIR, Pair>
+  | node<NODE, Node>
+;
+
+flowPair
+:
+  node<NODE, Node>
+  COLON<YAML_INDICATOR, ColonIndicator>
+  node<NODE, Node>
 ;
 
 flowMappingNode
@@ -353,9 +366,3 @@ flowMappingNode
   RBRACE<RBRACE, RBrace>
 ;
 
-flowPair
-:
-  node<NODE, Node>
-  COLON<YAML_INDICATOR, ColonIndicator>
-  node<NODE, Node>
-;

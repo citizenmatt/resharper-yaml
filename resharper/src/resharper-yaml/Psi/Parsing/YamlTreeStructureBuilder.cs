@@ -561,8 +561,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private void ParseFlowSequenceEntry(int indent)
     {
+      var mark = Mark();
+
       if (!TryParseFlowPair(indent))
         ParseFlowNode(indent);
+
+      DoneBeforeWhitespaces(mark, ElementType.FLOW_SEQUENCE_ENTRY);
     }
 
     private bool TryParseFlowPair(int indent)

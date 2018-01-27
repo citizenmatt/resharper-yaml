@@ -8,8 +8,9 @@ IYamlFile
         IFlowSequenceNode
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
-          IPlainScalarNode
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:YAML)
+          IFlowSequenceEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:YAML)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+FixedTokenElement(type:COLON, text::)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
@@ -23,7 +24,8 @@ IYamlFile
         IFlowSequenceNode
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
-          IEmptyScalarNode
+          IFlowSequenceEntry
+            IEmptyScalarNode
           YamlTokenType+FixedTokenElement(type:COLON, text::)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:empty key entry)
@@ -36,13 +38,14 @@ IYamlFile
         IFlowSequenceNode
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
-          IFlowMappingNode
-            YamlTokenType+FixedTokenElement(type:LBRACE, text:{)
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:JSON)
-            YamlTokenType+FixedTokenElement(type:COLON, text::)
-            Whitespace(type:WHITESPACE, text: ) spaces: " "
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:like)
-            YamlTokenType+FixedTokenElement(type:RBRACE, text:})
+          IFlowSequenceEntry
+            IFlowMappingNode
+              YamlTokenType+FixedTokenElement(type:LBRACE, text:{)
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:JSON)
+              YamlTokenType+FixedTokenElement(type:COLON, text::)
+              Whitespace(type:WHITESPACE, text: ) spaces: " "
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:like)
+              YamlTokenType+FixedTokenElement(type:RBRACE, text:})
           YamlTokenType+FixedTokenElement(type:COLON, text::)
           YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:adjacent)
           Whitespace(type:WHITESPACE, text: ) spaces: " "

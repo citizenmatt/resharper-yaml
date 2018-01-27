@@ -8,12 +8,14 @@ IYamlFile
         IFlowSequenceNode
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
-          IPlainScalarNode
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:one)
+          IFlowSequenceEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:one)
           YamlTokenType+FixedTokenElement(type:COMMA, text:,)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
-          IPlainScalarNode
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:two)
+          IFlowSequenceEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:two)
           YamlTokenType+FixedTokenElement(type:COMMA, text:,)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+FixedTokenElement(type:RBRACK, text:])
@@ -23,12 +25,14 @@ IYamlFile
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IFlowSequenceNode
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
-          IPlainScalarNode
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:three)
+          IFlowSequenceEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:three)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+FixedTokenElement(type:COMMA, text:,)
-          IPlainScalarNode
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:four)
+          IFlowSequenceEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:four)
           YamlTokenType+FixedTokenElement(type:RBRACK, text:])
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
 

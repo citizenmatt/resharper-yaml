@@ -42,28 +42,33 @@ IYamlFile
         IFlowSequenceNode
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
-          IPlainScalarNode
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:::vector)
+          IFlowSequenceEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:::vector)
           YamlTokenType+FixedTokenElement(type:COMMA, text:,)
           NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-          IDoubleQuotedScalarNode
-            YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-            YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:": - ()")
+          IFlowSequenceEntry
+            IDoubleQuotedScalarNode
+              YamlTokenType+GenericTokenElement(type:INDENT, text:  )
+              YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:": - ()")
           YamlTokenType+FixedTokenElement(type:COMMA, text:,)
           NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-          IDoubleQuotedScalarNode
-            YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-            YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"Up, up and away!")
+          IFlowSequenceEntry
+            IDoubleQuotedScalarNode
+              YamlTokenType+GenericTokenElement(type:INDENT, text:  )
+              YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"Up, up and away!")
           YamlTokenType+FixedTokenElement(type:COMMA, text:,)
           NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-          IPlainScalarNode
-            YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:-123)
+          IFlowSequenceEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:INDENT, text:  )
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:-123)
           YamlTokenType+FixedTokenElement(type:COMMA, text:,)
           NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-          IPlainScalarNode
-            YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:http://example.com/foo#bar)
+          IFlowSequenceEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:INDENT, text:  )
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:http://example.com/foo#bar)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+FixedTokenElement(type:RBRACK, text:])
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
