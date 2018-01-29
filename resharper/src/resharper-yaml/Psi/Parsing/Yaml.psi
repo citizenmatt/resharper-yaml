@@ -267,22 +267,22 @@ blockSequenceNode
   // These can actually be zero or more, but if we have this, blockMappingNode
   // and emptyScalarNode with potentially empty contents, PsiGen generates bad
   // code. It doesn't affect the shape of the generated PSI types
-  sequenceItem<ITEMS, Items>+
+  sequenceEntry<ENTRIES, Entries>+
 ;
 
 blockMappingNode
 :
-  blockMappingPair<PAIRS, Pairs>+
+  blockMappingEntry<ENTRIES, Entries>+
 ;
 
-sequenceItem
+sequenceEntry
 :
   INDENT<YAML_INDENT, Indent>
   MINUS<YAML_INDICATOR, MinusIndicator>
   node<VALUE, Value>
 ;
 
-blockMappingPair
+blockMappingEntry
 :
   INDENT<YAML_INDENT, Indent>
   QUESTION<QUESTION_INDICATOR, QuestionIndicator>

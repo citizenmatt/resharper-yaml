@@ -2,7 +2,7 @@
 IYamlFile
   IYamlDocument
     IBlockSequenceNode
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IDoubleQuotedScalarNode
@@ -15,13 +15,13 @@ IYamlFile
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"a")
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         ISingleQuotedScalarNode
           YamlTokenType+GenericTokenElement(type:C_SINGLE_QUOTED_SINGLE_LINE, text:'b')
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IDoubleQuotedScalarNode
@@ -32,14 +32,14 @@ IYamlFile
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"c")
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IAliasNode
           YamlTokenType+FixedTokenElement(type:ASTERISK, text:*)
           YamlTokenType+GenericTokenElement(type:NS_ANCHOR_NAME, text:anchor)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IEmptyScalarNode

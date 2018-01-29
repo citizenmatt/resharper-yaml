@@ -4,7 +4,7 @@ IYamlFile
   NewLine(type:NEW_LINE, text:\n) spaces: "\n"
   IYamlDocument
     IBlockSequenceNode
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IDoubleQuotedScalarNode
@@ -12,7 +12,7 @@ IYamlFile
       Whitespace(type:WHITESPACE, text:  ) spaces: "  "
       Comment(type:COMMENT, text:# Resolves to !!str) spaces: "# Resolves to !!str"
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IPlainScalarNode
@@ -20,7 +20,7 @@ IYamlFile
       Whitespace(type:WHITESPACE, text:    ) spaces: "    "
       Comment(type:COMMENT, text:# Resolves to !!int) spaces: "# Resolves to !!int"
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IPlainScalarNode

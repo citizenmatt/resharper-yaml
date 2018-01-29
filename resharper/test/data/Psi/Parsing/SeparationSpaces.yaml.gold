@@ -2,7 +2,7 @@
 IYamlFile
   IYamlDocument
     IBlockSequenceNode
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IPlainScalarNode

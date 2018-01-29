@@ -13,7 +13,7 @@ IYamlFile
       YamlTokenType+FixedTokenElement(type:DIRECTIVES_END, text:---)
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
     IBlockSequenceNode
-      ISequenceItem
+      ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "
         IDoubleQuotedScalarNode
