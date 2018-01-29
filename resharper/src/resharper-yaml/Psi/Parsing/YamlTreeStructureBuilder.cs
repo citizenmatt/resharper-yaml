@@ -794,8 +794,61 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private bool TryParseFlowPair(int expectedIndent)
     {
-      // TODO: Compact flow pair notation
+      if (GetTokenTypeNoSkipWhitespace() == YamlTokenType.QUESTION)
+      {
+        ParseFlowMapExplicitEntry(expectedIndent);
+        return true;
+      }
+
+      // TODO: Parse implicit pairs
+      // Need to handle graceful fallback from implicit pair to flow node
       return false;
+    }
+
+    private void ParseFlowMapExplicitEntry(int expectedIndent)
+    {
+      var mark = MarkNoSkipWhitespace();
+
+      ExpectTokenNoSkipWhitespace(YamlTokenType.QUESTION);
+
+      if (!ParseSeparationSpace(expectedIndent))
+      {
+        ErrorBeforeWhitespaces("Invalid indent");
+        myCurrentLineIndent = expectedIndent;
+      }
+
+      if (GetTokenTypeNoSkipWhitespace() != YamlTokenType.COLON)
+        ParseFlowNode(expectedIndent);
+      else
+        DoneBeforeWhitespaces(MarkNoSkipWhitespace(), ElementType.EMPTY_SCALAR_NODE);
+
+      var valueMark = MarkNoSkipWhitespace();
+      if (!ParseOptionalSeparationSpace(expectedIndent))
+      {
+        ErrorBeforeWhitespaces("Invalid indent");
+        expectedIndent = myCurrentLineIndent;
+      }
+
+      if (GetTokenTypeNoSkipWhitespace() != YamlTokenType.COLON)
+      {
+        Builder.RollbackTo(valueMark);
+        DoneBeforeWhitespaces(MarkNoSkipWhitespace(), ElementType.EMPTY_SCALAR_NODE);
+      }
+      else
+      {
+        Builder.Drop(valueMark);
+
+        Advance();
+        if (!ParseSeparationSpace(expectedIndent))
+        {
+          ErrorBeforeWhitespaces("Invalid indent");
+          expectedIndent = myCurrentLineIndent;
+        }
+
+        ParseFlowContent(expectedIndent);
+      }
+
+      DoneBeforeWhitespaces(mark, ElementType.FLOW_PAIR);
     }
 
     private CompositeNodeType ParseFlowMapping(int expectedIndent)
