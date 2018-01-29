@@ -829,8 +829,20 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         return true;
       }
 
-      // TODO: Parse implicit pairs
-      // Need to handle graceful fallback from implicit pair to flow node
+      var mark = MarkNoSkipWhitespace();
+      ParseFlowNode(expectedIndent);
+      if (ParseOptionalSeparationSpace(expectedIndent) && GetTokenTypeNoSkipWhitespace() == YamlTokenType.COLON)
+      {
+        ExpectTokenNoSkipWhitespace(YamlTokenType.COLON);
+        if (ParseIndent(expectedIndent))
+          ParseFlowNode(expectedIndent);
+        else
+          DoneBeforeWhitespaces(MarkNoSkipWhitespace(), ElementType.EMPTY_SCALAR_NODE);
+        DoneBeforeWhitespaces(mark, ElementType.FLOW_MAP_ENTRY);
+        return true;
+      }
+
+      Builder.RollbackTo(mark);
       return false;
     }
 
