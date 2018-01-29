@@ -4,23 +4,27 @@ IYamlFile
     IFlowMappingNode
       YamlTokenType+FixedTokenElement(type:LBRACE, text:{)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:unquoted)
-      Whitespace(type:WHITESPACE, text: ) spaces: " "
-      YamlTokenType+FixedTokenElement(type:COLON, text::)
-      Whitespace(type:WHITESPACE, text: ) spaces: " "
-      YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"separate")
+      IFlowMapEntry
+        YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:unquoted)
+        Whitespace(type:WHITESPACE, text: ) spaces: " "
+        YamlTokenType+FixedTokenElement(type:COLON, text::)
+        Whitespace(type:WHITESPACE, text: ) spaces: " "
+        YamlTokenType+GenericTokenElement(type:C_DOUBLE_QUOTED_SINGLE_LINE, text:"separate")
       YamlTokenType+FixedTokenElement(type:COMMA, text:,)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:http://foo.com)
+      IFlowMapEntry
+        YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:http://foo.com)
       YamlTokenType+FixedTokenElement(type:COMMA, text:,)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:omitted value)
-      YamlTokenType+FixedTokenElement(type:COLON, text::)
+      IFlowMapEntry
+        YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:omitted value)
+        YamlTokenType+FixedTokenElement(type:COLON, text::)
       YamlTokenType+FixedTokenElement(type:COMMA, text:,)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
-      YamlTokenType+FixedTokenElement(type:COLON, text::)
-      Whitespace(type:WHITESPACE, text: ) spaces: " "
-      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:omitted key)
+      IFlowMapEntry
+        YamlTokenType+FixedTokenElement(type:COLON, text::)
+        Whitespace(type:WHITESPACE, text: ) spaces: " "
+        YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:omitted key)
       YamlTokenType+FixedTokenElement(type:COMMA, text:,)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+FixedTokenElement(type:RBRACE, text:})

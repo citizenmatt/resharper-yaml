@@ -362,7 +362,12 @@ flowMappingNode
 :
   nodeProperties<YAML_PROPERTIES, Properties>?
   LBRACE<LBRACE, LBrace>
-  (LIST node<NODE, Nodes> SEP COMMA<COMMA, Comma>)?
+  (LIST flowMapEntry<ENTRY, ENTRIES> SEP COMMA<COMMA, Comma>)?
   RBRACE<RBRACE, RBrace>
+;
+
+flowMapEntry
+:
+  node<NODE, Node>
 ;
 

@@ -5,23 +5,25 @@ IYamlFile
       YamlTokenType+FixedTokenElement(type:LBRACE, text:{)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:foo)
-      Whitespace(type:WHITESPACE, text: ) spaces: " "
-      YamlTokenType+FixedTokenElement(type:COLON, text::)
-      Whitespace(type:WHITESPACE, text: ) spaces: " "
-      YamlTokenType+FixedTokenElement(type:BANG, text:!)
-      YamlTokenType+FixedTokenElement(type:BANG, text:!)
-      YamlTokenType+GenericTokenElement(type:NS_TAG_CHARS, text:str)
+      IFlowMapEntry
+        YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:foo)
+        Whitespace(type:WHITESPACE, text: ) spaces: " "
+        YamlTokenType+FixedTokenElement(type:COLON, text::)
+        Whitespace(type:WHITESPACE, text: ) spaces: " "
+        YamlTokenType+FixedTokenElement(type:BANG, text:!)
+        YamlTokenType+FixedTokenElement(type:BANG, text:!)
+        YamlTokenType+GenericTokenElement(type:NS_TAG_CHARS, text:str)
       YamlTokenType+FixedTokenElement(type:COMMA, text:,)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-      YamlTokenType+FixedTokenElement(type:BANG, text:!)
-      YamlTokenType+FixedTokenElement(type:BANG, text:!)
-      YamlTokenType+GenericTokenElement(type:NS_TAG_CHARS, text:str)
-      Whitespace(type:WHITESPACE, text: ) spaces: " "
-      YamlTokenType+FixedTokenElement(type:COLON, text::)
-      Whitespace(type:WHITESPACE, text: ) spaces: " "
-      YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:bar)
+      IFlowMapEntry
+        YamlTokenType+FixedTokenElement(type:BANG, text:!)
+        YamlTokenType+FixedTokenElement(type:BANG, text:!)
+        YamlTokenType+GenericTokenElement(type:NS_TAG_CHARS, text:str)
+        Whitespace(type:WHITESPACE, text: ) spaces: " "
+        YamlTokenType+FixedTokenElement(type:COLON, text::)
+        Whitespace(type:WHITESPACE, text: ) spaces: " "
+        YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:bar)
       YamlTokenType+FixedTokenElement(type:COMMA, text:,)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+FixedTokenElement(type:RBRACE, text:})

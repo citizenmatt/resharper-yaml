@@ -868,13 +868,10 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         Builder.Drop(valueMark);
 
         Advance();
-        if (!ParseSeparationSpace(expectedIndent))
-        {
-          ErrorBeforeWhitespaces("Invalid indent");
-          expectedIndent = myCurrentLineIndent;
-        }
-
-        ParseFlowContent(expectedIndent);
+        if (ParseSeparationSpace(expectedIndent))
+          ParseFlowContent(expectedIndent);
+        else
+          DoneBeforeWhitespaces(MarkNoSkipWhitespace(), ElementType.EMPTY_SCALAR_NODE);
       }
 
       DoneBeforeWhitespaces(mark, ElementType.FLOW_PAIR);
@@ -918,9 +915,18 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private void ParseFlowMapEntry(int expectedIndent)
     {
-      // TODO: Parse flow map entry
-      while (!Builder.Eof() && GetTokenType() != YamlTokenType.COMMA && GetTokenType() != YamlTokenType.RBRACE)
-        Advance();
+      var mark = MarkNoSkipWhitespace();
+
+      if (GetTokenTypeNoSkipWhitespace() == YamlTokenType.QUESTION)
+        ParseFlowMapExplicitEntry(expectedIndent);
+      else
+      {
+        // TODO: Parse implicit flow map entry
+        while (!Builder.Eof() && GetTokenType() != YamlTokenType.COMMA && GetTokenType() != YamlTokenType.RBRACE)
+          Advance();
+      }
+
+      DoneBeforeWhitespaces(mark, ElementType.FLOW_MAP_ENTRY);
     }
 
     private CompositeNodeType ParseMultilinePlainScalar(int expectedIndent)

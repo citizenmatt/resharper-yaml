@@ -41,10 +41,11 @@ IYamlFile
           IFlowSequenceEntry
             IFlowMappingNode
               YamlTokenType+FixedTokenElement(type:LBRACE, text:{)
-              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:JSON)
-              YamlTokenType+FixedTokenElement(type:COLON, text::)
-              Whitespace(type:WHITESPACE, text: ) spaces: " "
-              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:like)
+              IFlowMapEntry
+                YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:JSON)
+                YamlTokenType+FixedTokenElement(type:COLON, text::)
+                Whitespace(type:WHITESPACE, text: ) spaces: " "
+                YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:like)
               YamlTokenType+FixedTokenElement(type:RBRACE, text:})
           YamlTokenType+FixedTokenElement(type:COLON, text::)
           YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:adjacent)
