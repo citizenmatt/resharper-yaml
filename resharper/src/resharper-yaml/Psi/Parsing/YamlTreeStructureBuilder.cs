@@ -236,7 +236,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         if (expectedIndent == -1 && tt == YamlTokenType.INDENT)
           expectedIndent = GetTokenLength();
 
-        if (tt == YamlTokenType.SCALAR_TEXT || (tt == YamlTokenType.INDENT && GetTokenLength() > expectedIndent) || tt == YamlTokenType.NEW_LINE) 
+        if (tt == YamlTokenType.SCALAR_TEXT || (tt == YamlTokenType.INDENT && GetTokenLength() > expectedIndent) || tt == YamlTokenType.NEW_LINE)
         {
           Advance();
 
@@ -402,13 +402,17 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       do
       {
-        var curr = Builder.GetCurrentLexeme();
-
         if (!TryParseBlockMapEntry(expectedIndent))
           break;
 
-        if (curr == Builder.GetCurrentLexeme())
+        var indentMark = MarkNoSkipWhitespace();
+        if (!ParseIndent(expectedIndent))
+        {
+          Builder.RollbackTo(indentMark);
           break;
+        }
+
+        Builder.Drop(indentMark);
       } while (!Builder.Eof());
 
       DoneBeforeWhitespaces(mark, ElementType.BLOCK_MAPPING_NODE);
@@ -425,9 +429,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       var mark = MarkNoSkipWhitespace();
 
-      if (ParseIndent(expectedIndent))
+      if (ParseIndent(expectedIndent) && GetTokenTypeNoSkipWhitespace() == YamlTokenType.QUESTION)
       {
-        ExpectTokenNoSkipWhitespace(YamlTokenType.QUESTION);
+        Advance();
         ParseBlockNode(expectedIndent, false);
 
         var valueMark = MarkNoSkipWhitespace();
@@ -440,9 +444,11 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         }
         else
           DoneBeforeWhitespaces(valueMark, ElementType.EMPTY_SCALAR_NODE);
+
         DoneBeforeWhitespaces(mark, ElementType.BLOCK_MAPPING_ENTRY);
         return true;
       }
+
       Builder.RollbackTo(mark);
       return false;
     }
@@ -450,6 +456,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     [MustUseReturnValue]
     private bool TryParseBlockMapImplicitEntry(int expectedIndent)
     {
+      // TODO: Parse implicit map entry
       return false;
     }
 
@@ -515,7 +522,29 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     private bool TryParseCompactMapping(int expectedIndent)
     {
-      // TODO: Parse compact mapping
+      if (TryParseBlockMapEntry(expectedIndent))
+      {
+        do
+        {
+          var mark = MarkNoSkipWhitespace();
+          if (!ParseIndent(expectedIndent))
+          {
+            Builder.RollbackTo(mark);
+            break;
+          }
+
+          if (!TryParseBlockMapEntry(expectedIndent))
+          {
+            Builder.RollbackTo(mark);
+            break;
+          }
+
+          Builder.Drop(mark);
+        } while (!Builder.Eof());
+
+        return true;
+      }
+
       return false;
     }
 
