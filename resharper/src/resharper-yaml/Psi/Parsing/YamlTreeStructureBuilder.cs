@@ -153,6 +153,12 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         ParseFlowInBlock(expectedIndent);
     }
 
+    private void ParseBlockIndented(int expectedIndent)
+    {
+      if (!TryParseCompactNotation(expectedIndent))
+        ParseBlockNode(expectedIndent, true);
+    }
+
     private bool TryParseBlockInBlock(int expectedIndent, bool isBlockIn)
     {
       return TryParseBlockScalar(expectedIndent) || TryParseBlockCollection(expectedIndent, isBlockIn);
@@ -374,7 +380,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       if (ParseIndent(expectedIndent) && GetTokenTypeNoSkipWhitespace() == YamlTokenType.MINUS)
       {
         ExpectToken(YamlTokenType.MINUS);
-        ParseBlockNode(expectedIndent, true);
+        ParseBlockIndented(expectedIndent);
 
         DoneBeforeWhitespaces(mark, ElementType.SEQUENCE_ENTRY);
         return true;
@@ -451,6 +457,65 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     {
       // TODO: Handle implicit keys
       Builder.RollbackTo(mark);
+      return false;
+    }
+
+    private bool TryParseCompactNotation(int expectedIndent)
+    {
+      return TryParseCompactSequence(expectedIndent + 1) || TryParseCompactMapping(expectedIndent + 1);
+    }
+
+    private bool TryParseCompactSequence(int expectedIndent)
+    {
+      var mark = MarkNoSkipWhitespace();
+
+      // s-indent(m) <- not n!
+      var m = 0;
+      while (!Builder.Eof())
+      {
+        var tt = GetTokenTypeNoSkipWhitespace();
+        if (!tt.IsWhitespace || tt == YamlTokenType.NEW_LINE)
+          break;
+
+        Advance();
+        m++;
+      }
+
+      expectedIndent = expectedIndent + m;
+      if (GetTokenTypeNoSkipWhitespace() == YamlTokenType.MINUS)
+      {
+        ParseCompactSequenceEntries(expectedIndent);
+        // TODO: COMPACT_SEQUENCE_NODE?
+        DoneBeforeWhitespaces(mark, ElementType.BLOCK_SEQUENCE_NODE);
+        return true;
+      }
+
+      Builder.RollbackTo(mark);
+      return false;
+    }
+
+    private void ParseCompactSequenceEntries(int expectedIndent)
+    {
+      do
+      {
+        var mark = MarkNoSkipWhitespace();
+        ExpectTokenNoSkipWhitespace(YamlTokenType.MINUS);
+        ParseBlockIndented(expectedIndent);
+        DoneBeforeWhitespaces(mark, ElementType.SEQUENCE_ENTRY);
+
+        mark = MarkNoSkipWhitespace();
+        if (!ParseIndent(expectedIndent))
+        {
+          Builder.RollbackTo(mark);
+          return;
+        }
+        Builder.Drop(mark);
+      } while (!Builder.Eof() && GetTokenTypeNoSkipWhitespace() == YamlTokenType.MINUS);
+    }
+
+    private bool TryParseCompactMapping(int expectedIndent)
+    {
+      // TODO: Parse compact mapping
       return false;
     }
 
@@ -884,6 +949,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     [MustUseReturnValue]
     private bool ParseCommentLines(int expectedIndent)
     {
+      // TODO: Is this correct?
+      // We could get single line whitespace which doesn't update myCurrentLineIndent
+      // and we'd still return true
       _EatWhitespaceAndIndent();
       return myCurrentLineIndent >= expectedIndent;
     }
@@ -899,7 +967,11 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     [MustUseReturnValue]
     private bool ParseIndent(int expectedIndent)
     {
-      // TODO: This should be INDENT char only!
+      // TODO: Is this correct?
+      // s-indent(n) means parse (n) space chars
+      // s-indent(m) means parse some space chars and return (m)
+      // And here, we could parse some space chars without updating myCurrentLineIndent
+      // and still have it return true
       _EatWhitespaceAndIndent();
       return myCurrentLineIndent >= expectedIndent;
     }
