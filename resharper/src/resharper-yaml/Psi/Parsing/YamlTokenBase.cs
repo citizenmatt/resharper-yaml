@@ -3,11 +3,12 @@ using JetBrains.ReSharper.Plugins.Yaml.Psi.Tree;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
 using JetBrains.ReSharper.Psi.Parsing;
+using JetBrains.ReSharper.Psi.Tree;
 using JetBrains.Text;
 
 namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 {
-  public abstract class YamlTokenBase : LeafElementBase, IYamlTreeNode
+  public abstract class YamlTokenBase : LeafElementBase, IYamlTreeNode, ITokenNode
   {
     public override PsiLanguageType Language => LanguageFromParent;
 
