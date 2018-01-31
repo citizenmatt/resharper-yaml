@@ -20,8 +20,8 @@ IYamlFile
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
-        Whitespace(type:WHITESPACE, text: ) spaces: " "
-        IPlainScalarNode
+        IBlockMappingNode
+          Whitespace(type:WHITESPACE, text: ) spaces: " "
           INodeProperties
             IShorthandTagProperty
               ISecondaryTagHandle
@@ -32,11 +32,14 @@ IYamlFile
           Comment(type:COMMENT, text:# Block collection) spaces: "# Block collection"
           NewLine(type:NEW_LINE, text:\n) spaces: "\n"
           YamlTokenType+GenericTokenElement(type:INDENT, text:  )
-          YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:foo)
-    Whitespace(type:WHITESPACE, text: ) spaces: " "
-    YamlTokenType+FixedTokenElement(type:COLON, text::)
-    Whitespace(type:WHITESPACE, text: ) spaces: " "
-    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:bar)
+          IBlockMappingEntry
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:foo)
+            Whitespace(type:WHITESPACE, text: ) spaces: " "
+            YamlTokenType+FixedTokenElement(type:COLON, text::)
+            Whitespace(type:WHITESPACE, text: ) spaces: " "
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:bar)
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
 

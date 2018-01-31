@@ -5,7 +5,7 @@ IYamlFile
       YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       IFlowSequenceEntry
-        IFlowPair
+        IFlowMapEntry
           YamlTokenType+FixedTokenElement(type:QUESTION, text:?)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           IPlainScalarNode

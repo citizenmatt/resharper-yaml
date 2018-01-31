@@ -26,7 +26,7 @@ IYamlFile
       YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:fluorescent)
     NewLine(type:NEW_LINE, text:\n) spaces: "\n"
     YamlTokenType+FixedTokenElement(type:DOCUMENT_END, text:...)
-  NewLine(type:NEW_LINE, text:\n) spaces: "\n"
+    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
   IYamlDocument
     IDirectives
       IDirective

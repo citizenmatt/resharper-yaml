@@ -11,8 +11,8 @@ IYamlFile
         YamlTokenType+GenericTokenElement(type:NS_CHARS, text:tag:example,2000:app/)
         NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       YamlTokenType+FixedTokenElement(type:DIRECTIVES_END, text:---)
-    NewLine(type:NEW_LINE, text:\n) spaces: "\n"
     IBlockSequenceNode
+      NewLine(type:NEW_LINE, text:\n) spaces: "\n"
       ISequenceEntry
         YamlTokenType+FixedTokenElement(type:MINUS, text:-)
         Whitespace(type:WHITESPACE, text: ) spaces: " "

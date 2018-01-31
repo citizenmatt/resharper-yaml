@@ -9,7 +9,7 @@ IYamlFile
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           IFlowSequenceEntry
-            IFlowMapEntry
+            IFlowPair
               IPlainScalarNode
                 YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:YAML)
               Whitespace(type:WHITESPACE, text: ) spaces: " "
@@ -27,7 +27,7 @@ IYamlFile
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           IFlowSequenceEntry
-            IFlowMapEntry
+            IFlowPair
               IEmptyScalarNode
               YamlTokenType+FixedTokenElement(type:COLON, text::)
               Whitespace(type:WHITESPACE, text: ) spaces: " "
@@ -43,14 +43,16 @@ IYamlFile
           YamlTokenType+FixedTokenElement(type:LBRACK, text:[)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           IFlowSequenceEntry
-            IFlowMapEntry
+            IFlowPair
               IFlowMappingNode
                 YamlTokenType+FixedTokenElement(type:LBRACE, text:{)
                 IFlowMapEntry
-                  YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:JSON)
+                  IPlainScalarNode
+                    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:JSON)
                   YamlTokenType+FixedTokenElement(type:COLON, text::)
                   Whitespace(type:WHITESPACE, text: ) spaces: " "
-                  YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:like)
+                  IPlainScalarNode
+                    YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:like)
                 YamlTokenType+FixedTokenElement(type:RBRACE, text:})
               YamlTokenType+FixedTokenElement(type:COLON, text::)
               IPlainScalarNode

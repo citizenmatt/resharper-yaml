@@ -26,10 +26,12 @@ IYamlFile
           YamlTokenType+FixedTokenElement(type:LBRACE, text:{)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           IFlowMapEntry
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:a)
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:a)
             YamlTokenType+FixedTokenElement(type:COLON, text::)
             Whitespace(type:WHITESPACE, text: ) spaces: " "
-            YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:b)
+            IPlainScalarNode
+              YamlTokenType+GenericTokenElement(type:NS_PLAIN, text:b)
           Whitespace(type:WHITESPACE, text: ) spaces: " "
           YamlTokenType+FixedTokenElement(type:RBRACE, text:})
       NewLine(type:NEW_LINE, text:\n) spaces: "\n"

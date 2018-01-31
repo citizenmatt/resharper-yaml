@@ -353,9 +353,10 @@ flowSequenceEntry
 
 flowPair
 :
-  node<NODE, Node>
+  QUESTION<QUESTION, QuestionIndicator>?
+  node<KEY_NODE, Key>
   COLON<YAML_INDICATOR, ColonIndicator>
-  node<NODE, Node>
+  node<VALUE_NODE, Value>
 ;
 
 flowMappingNode
@@ -368,6 +369,8 @@ flowMappingNode
 
 flowMapEntry
 :
-  node<NODE, Node>
+  QUESTION<QUESTION, QuestionIndicator>?
+  node<KEY_NODE, Key>
+  COLON<YAML_INDICATOR, ColonIndicator>
+  node<VALUE_NODE, Value>
 ;
-
