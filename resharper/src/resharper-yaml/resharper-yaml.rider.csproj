@@ -39,6 +39,14 @@
       <DependentUpon>YamlTokenType.Tokens.xml</DependentUpon>
     </Compile>
     <ParserGen Include="Psi\Parsing\Yaml.psi" />
+    <ErrorsGen Include="Daemon\Errors\YamlErrors.xml">
+      <Namespace>JetBrains.ReSharper.Plugins.Yaml.Daemon.Errors</Namespace>
+      <OutputFile>Daemon\Errors\YamlErrors.generated.cs</OutputFile>
+      <Mode>ERRORS</Mode>
+    </ErrorsGen>
+    <Compile Update="Daemon\Errors\YamlErrors.generated.cs">
+      <DependentUpon>YamlErrors.xml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <!-- References -->
   <ItemGroup>
