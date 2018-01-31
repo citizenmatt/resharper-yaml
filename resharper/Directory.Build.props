@@ -22,4 +22,9 @@
   <PropertyGroup>
     <OutputPath>$(MSBuildThisFileDirectory)\build\$(MSBuildProjectName)\bin\$(Configuration)</OutputPath>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <RiderSDKVersion>2018.1-SNAPSHOT*</RiderSDKVersion>
+    <ReSharperSDKVersion>2018.1-SNAPSHOT*</ReSharperSDKVersion>    
+  </PropertyGroup>  
 </Project>

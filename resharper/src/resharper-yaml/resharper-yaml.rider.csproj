@@ -50,7 +50,7 @@
   </ItemGroup>
   <!-- References -->
   <ItemGroup>
-    <PackageReference Include="JetBrains.Rider.SDK" Version="[2017.3.0]" />
+    <PackageReference Include="JetBrains.Rider.SDK" Version="$(RiderSDKVersion)" />
     <Reference Include="PresentationCore" Condition=" '$(OS)' != 'Unix' " />
     <Reference Include="PresentationFramework" Condition=" '$(OS)' != 'Unix' " />
     <Reference Include="System.Xaml" />

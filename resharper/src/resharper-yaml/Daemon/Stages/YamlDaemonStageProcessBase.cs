@@ -26,7 +26,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Daemon.Stages
     public bool IsProcessingFinished(IHighlightingConsumer consumer)
     {
       if (DaemonProcess.InterruptFlag)
-        throw new ProcessCancelledException();
+        throw new OperationCanceledException();
       return false;
     }
 
