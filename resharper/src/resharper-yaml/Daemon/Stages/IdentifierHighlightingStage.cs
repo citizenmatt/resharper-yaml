@@ -6,18 +6,27 @@ using JetBrains.ReSharper.Plugins.Yaml.Daemon.Errors;
 using JetBrains.ReSharper.Plugins.Yaml.Psi;
 using JetBrains.ReSharper.Plugins.Yaml.Psi.Tree;
 using JetBrains.ReSharper.Psi;
+using JetBrains.ReSharper.Psi.ExtensionsAPI.Tree;
+using JetBrains.ReSharper.Psi.Resolve;
 using JetBrains.ReSharper.Psi.Tree;
 
 namespace JetBrains.ReSharper.Plugins.Yaml.Daemon.Stages
 {
   [DaemonStage(StagesBefore = new[] {typeof(GlobalFileStructureCollectorStage)},
     StagesAfter = new[] {typeof(CollectUsagesStage)})]
-  public class YamlSyntaxErrorHighlightStage : YamlDaemonStageBase
+  public class IdentifierHighlightingStage : YamlDaemonStageBase
   {
+    private readonly ResolveHighlighterRegistrar myRegistrar;
+
+    public IdentifierHighlightingStage(ResolveHighlighterRegistrar registrar)
+    {
+      myRegistrar = registrar;
+    }
+
     protected override IDaemonStageProcess CreateProcess(IDaemonProcess process, IContextBoundSettingsStore settings,
       DaemonProcessKind processKind, IYamlFile file)
     {
-      return new YamlSyntaxErrorHighlightProcess(process, processKind, file);
+      return new IdentifierHighlightingProcess(process, file, myRegistrar);
     }
 
     protected override bool IsSupported(IPsiSourceFile sourceFile)
@@ -29,15 +38,23 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Daemon.Stages
       return sourceFile.IsLanguageSupported<YamlLanguage>();
     }
 
-    private class YamlSyntaxErrorHighlightProcess : YamlDaemonStageProcessBase
+    private class IdentifierHighlightingProcess : YamlDaemonStageProcessBase
     {
-      public YamlSyntaxErrorHighlightProcess(IDaemonProcess process, DaemonProcessKind processKind, IYamlFile file)
+      private readonly ResolveProblemHighlighter myResolveProblemHighlighter;
+      private readonly IReferenceProvider myReferenceProvider;
+
+      public IdentifierHighlightingProcess(IDaemonProcess process, IYamlFile file, ResolveHighlighterRegistrar resolveHighlighterRegistrar)
         : base(process, file)
       {
+        myResolveProblemHighlighter = new ResolveProblemHighlighter(resolveHighlighterRegistrar);
+        myReferenceProvider = ((IFileImpl)file).ReferenceProvider;
       }
 
       public override void VisitNode(ITreeNode node, IHighlightingConsumer consumer)
       {
+        var references = node.GetReferences(myReferenceProvider);
+        myResolveProblemHighlighter.CheckForResolveProblems(node, consumer, references);
+
         if (node is IErrorElement errorElement)
         {
           var range = errorElement.GetDocumentRange();

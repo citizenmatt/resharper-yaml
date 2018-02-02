@@ -16,4 +16,13 @@
     <Range>DocumentRange</Range>
     <Behavour attributeID="ERROR" overlapResolvePolicy="ERROR"/>
   </Error>
+
+  <Error name="NotResolved" staticGroup="YamlErrors">
+    <Parameter type="IReference" name="reference"/>
+    <Message value="Cannot resolve symbol '{0}'">
+      <Argument>Reference.GetName()</Argument>
+    </Message>
+    <Range>Reference.GetDocumentRange()</Range>
+    <Behavour attributeID="UNRESOLVED_ERROR" overlapResolvePolicy="UNRESOLVED_ERROR"/>
+  </Error>
 </Errors>
