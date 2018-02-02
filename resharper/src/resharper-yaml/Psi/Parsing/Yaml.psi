@@ -243,6 +243,7 @@ indentationIndicator
 
 literalScalarNode
 :
+  nodeProperties<YAML_PROPERTIES, Properties>?
   PIPE<YAML_INDICATOR, PipeIndicator>
   blockHeader<BLOCK_HEADER, BlockHeader>?
   SCALAR_TEXT<YAML_TEXT, Text>+
@@ -250,6 +251,7 @@ literalScalarNode
 
 foldedScalarNode
 :
+  nodeProperties<YAML_PROPERTIES, Properties>?
   GT<YAML_INDICATOR, GtIndicator>
   blockHeader<BLOCK_HEADER, BlockHeader>?
   SCALAR_TEXT<YAML_TEXT, Text>+
@@ -264,6 +266,7 @@ foldedScalarNode
 
 blockSequenceNode
 :
+  nodeProperties<YAML_PROPERTIES, Properties>?
   // These can actually be zero or more, but if we have this, blockMappingNode
   // and emptyScalarNode with potentially empty contents, PsiGen generates bad
   // code. It doesn't affect the shape of the generated PSI types
@@ -272,6 +275,7 @@ blockSequenceNode
 
 blockMappingNode
 :
+  nodeProperties<YAML_PROPERTIES, Properties>?
   blockMappingEntry<ENTRIES, Entries>+
 ;
 
@@ -284,8 +288,8 @@ sequenceEntry
 
 blockMappingEntry
 :
-  INDENT<YAML_INDENT, Indent>
-  QUESTION<QUESTION_INDICATOR, QuestionIndicator>
+  INDENT<YAML_INDENT, Indent>?
+  QUESTION<QUESTION_INDICATOR, QuestionIndicator>?
   node<KEY, Key>
   COLON<COLON_INDICATOR, ColonIndicator>
   node<VALUE, Value>
@@ -363,7 +367,7 @@ flowMappingNode
 :
   nodeProperties<YAML_PROPERTIES, Properties>?
   LBRACE<LBRACE, LBrace>
-  (LIST flowMapEntry<ENTRY, ENTRIES> SEP COMMA<COMMA, Comma>)?
+  (LIST flowMapEntry<ENTRY, Entries> SEP COMMA<COMMA, Comma>)?
   RBRACE<RBRACE, RBrace>
 ;
 
