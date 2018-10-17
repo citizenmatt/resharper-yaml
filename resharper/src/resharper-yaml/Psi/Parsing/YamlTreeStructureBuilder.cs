@@ -86,7 +86,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       {
         myDocumentStartLexeme = Builder.GetCurrentLexeme();
 
-        // We know we can safely ignore this. It only fails for indent
+        // [207] l-bare-document	::=	s-l+block-node(-1,block-in)
+        // We know we can safely ignore this return value. It only fails for indent
         // ReSharper disable once MustUseReturnValue
         TryParseBlockNode(-1, true);
       }
@@ -165,6 +166,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     // block-in being "inside a block sequence"
     // NOTE! This method is not guaranteed to consume any tokens! Protect against endless loops!
+    // [196] s-l+block-node(n,c)
     [MustUseReturnValue]
     private bool TryParseBlockNode(int expectedIndent, bool isBlockIn)
     {
@@ -180,11 +182,13 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       }
     }
 
+    // [198] s-l+block-in-block(n, c)
     private bool TryParseBlockInBlock(int expectedIndent, bool isBlockIn)
     {
       return TryParseBlockScalar(expectedIndent) || TryParseBlockCollection(expectedIndent, isBlockIn);
     }
 
+    // [199] s-l+block-scalar(n, c)
     private bool TryParseBlockScalar(int expectedIndent)
     {
       var mark = MarkNoSkipWhitespace();
@@ -321,6 +325,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         Advance();
     }
 
+    // [200] s-l+block-collection(n, c)
     private bool TryParseBlockCollection(int expectedIndent, bool isBlockIn)
     {
       var mark = MarkNoSkipWhitespace();
@@ -334,6 +339,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       ParseComments();
 
+      // ( l+block-sequence(seq-spaces(n,c)) | l+block-mapping(n) )
+      // Chicken and egg alert! The expected indent for the next rule is dependent on 
+      // The expected indent that the next rule is going to use is dependent on what the next rule is. Chicken and egg!
       // Look passed any whitespace and indents, because we need to autodetect
       // the indent, and that differs if we a sequence or a map
       var tt = LookAheadNextSignificantToken();
@@ -364,12 +372,14 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return false;
     }
 
+    // [183] l+block-sequence(n)
     private bool TryParseBlockSequenceWithoutRollback(int expectedIndent)
     {
-      // s-indent(n+m)
+      // Figure out the m in s-indent(n+m)
       var m = DetectCollectionIndent(expectedIndent);
       expectedIndent += m;
 
+      // s-indent(n+m)
       if (!TryParseIndentWithoutRollback(expectedIndent))
         return false;
 
@@ -586,6 +596,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return false;
     }
 
+    // [197] s-l+flow-in-block(n)
     [MustUseReturnValue]
     private bool TryParseFlowInBlock(int expectedIndent)
     {
@@ -622,6 +633,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       DoneBeforeWhitespaces(mark, ElementType.ALIAS_NODE);
     }
 
+    // [96]	c-ns-properties(n,c)
     private bool TryParseNodeProperties(int expectedIndent)
     {
       var tt = GetTokenTypeNoSkipWhitespace();
@@ -630,6 +642,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
       var mark = MarkNoSkipWhitespace();
 
+      // TODO: IJ parser will handle multiple anchor/tags as errors
       if (tt == YamlTokenType.BANG || tt == YamlTokenType.BANG_LT)
       {
         ParseTagProperty();
@@ -1167,13 +1180,17 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
 
     // According to the spec:
     // s-indent(n+m)
-    // For some fixed auto-detected m > 0
-    // No idea what that really means, so this is based on the Haskell
-    // reference implementation
+    // For some auto-detected m > 0
+    // This isn't really explained further but essentially means the new indent must be greater than the current indent,
+    // and we have to figure out what it is so it can be applied to allow following rules to get a consistent indent for
+    // e.g. all items in a series of block mapping entries. So that means lookahead to the next significant token and
+    // that gives us the indent (n+m). We already known n, so this gives us m
     private int DetectCollectionIndent(int expectedIndent)
     {
       var tt = GetTokenTypeNoSkipWhitespace();
       var currentLineIndent = 0;
+
+      // The lexer should give us the whitespace. Fall back to counting whitespace, just in case
       if (tt == YamlTokenType.INDENT)
         currentLineIndent = GetTokenLength();
       else
@@ -1181,6 +1198,8 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
         while (Builder.GetTokenType(currentLineIndent) == YamlTokenType.WHITESPACE)
           currentLineIndent++;
       }
+
+      // currentLineIndent is (n+m), work out m, make sure it's greater than 0
       return Math.Max(-expectedIndent + currentLineIndent, 1);
     }
 
@@ -1193,7 +1212,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return Math.Max(1, m);
     }
 
-    // s-l-comments
+    // [79] s-l-comments
     private void ParseComments()
     {
       var eolMark = -1;
@@ -1249,7 +1268,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       return expectedIndent == 0;
     }
 
-    // s-separate-in-line
+    // [66] s-separate-in-line
     private void ParseSeparateInLine()
     {
       while (!Builder.Eof())
@@ -1262,10 +1281,11 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
       }
     }
 
-    // s-separate(n)
+    // [80] s-separate(n, c)
     [MustUseReturnValue]
     private bool TryParseSeparationSpaceWithoutRollback(int expectedIndent)
     {
+      // I.e. c is block-key or flow-key
       if (myExpectImplicitKey)
       {
         ParseSeparateInLine();

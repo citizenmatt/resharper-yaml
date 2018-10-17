@@ -26,11 +26,11 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
   // the construct, we're implicitly ALREADY in `flow-key`.
   // One more: if the first thing we match (in `block-in`) is a plain scalar, then
   // it could be a block mapping node with a simple/implicit key (which means we're
-  // in `flow-key` context) or it could be a flow node with a plain salar, which
+  // in `flow-key` context) or it could be a flow node with a plain scalar, which
   // means we're in `flow-out` context. The only way to know what context we're
   // actually in is to continue lexing to see if we get a COLON or not.
   //
-  // In other words, we don't swtich to a context and match, instead we match tokens
+  // In other words, we don't switch to a context and match, instead we match tokens
   // and that tells us what context we're in. Which means we can't map contexts to
   // lexer states, and that makes it very difficult to know if we're properly
   // following the spec.
@@ -96,7 +96,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     // The indent of the indicator of a block scalar. The contents must be more
     // indented than this. However, we also need to handle the case where the
     // indicator is at column 0, but we're in `block-in` context, i.e. at the
-    // root of the doucment. This allows the indent to also be at column 0 (the
+    // root of the document. This allows the indent to also be at column 0 (the
     // parent node is treated as being at column -1)
     // TODO: Use the indentation indicator value to set this
 
@@ -296,7 +296,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Psi.Parsing
     private void BeginBlockScalar()
     {
       // Note that block scalar indent is based on the parent node, not the indent
-      // of the indciator
+      // of the indicator
       yybegin(BLOCK_SCALAR_HEADER);
     }
 
