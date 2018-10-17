@@ -15,6 +15,6 @@
     <PackageReference Include="JetBrains.Rider.SDK.Tests" Version="$(RiderSDKVersion)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\resharper-yaml\resharper-yaml.rider.csproj" />
+    <ProjectReference Include="..\..\..\src\resharper-yaml.rider.csproj" />
   </ItemGroup>
 </Project>

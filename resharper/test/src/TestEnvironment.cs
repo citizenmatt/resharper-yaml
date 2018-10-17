@@ -6,6 +6,10 @@ using NUnit.Framework;
 
 [assembly: RequiresSTA]
 
+#pragma warning disable 618
+[assembly: TestDataPathBase("resharper/test/data")]
+#pragma warning restore 618
+
 namespace JetBrains.ReSharper.Plugins.Yaml.Tests
 {
     [ZoneDefinition]
