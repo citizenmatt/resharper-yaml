@@ -14,10 +14,9 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Tests.Psi.Parsing
   {
     protected override string RelativeTestDataPath => @"Psi\Lexing";
 
-    protected override ILexer CreateLexer(StreamReader sr)
+    protected override ILexer CreateLexer(IBuffer buffer)
     {
-      var text = sr.ReadToEnd();
-      return new YamlLexer(new StringBuffer(text));
+      return new YamlLexer(buffer);
     }
 
     protected override void WriteToken(TextWriter writer, ILexer lexer)

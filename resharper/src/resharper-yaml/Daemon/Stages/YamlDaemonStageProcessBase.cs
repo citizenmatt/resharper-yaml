@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Application.Progress;
 using JetBrains.ReSharper.Feature.Services.Daemon;
 using JetBrains.ReSharper.Plugins.Yaml.Psi.Tree;
 using JetBrains.ReSharper.Psi;
@@ -52,7 +51,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Daemon.Stages
     protected void HighlightInFile(Action<IYamlFile, IHighlightingConsumer> fileHighlighter,
       Action<DaemonStageResult> committer)
     {
-      var consumer = new FilteringHighlightingConsumer(myFile.GetSourceFile(), myFile);
+      var consumer = new FilteringHighlightingConsumer(DaemonProcess.SourceFile, myFile, DaemonProcess.ContextBoundSettingsStore);
       fileHighlighter(myFile, consumer);
       committer(new DaemonStageResult(consumer.Highlightings));
     }

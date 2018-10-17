@@ -3,6 +3,7 @@
     <TargetFramework>net461</TargetFramework>
     <AssemblyName>JetBrains.ReSharper.Plugins.Yaml.Tests.Rider</AssemblyName>
     <RootNamespace>JetBrains.ReSharper.Plugins.Yaml.Tests</RootNamespace>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DefineConstants>TRACE;DEBUG;NET461;JET_MODE_ASSERT;JET_MODE_REPORT_EXCEPTIONS;RIDER</DefineConstants>

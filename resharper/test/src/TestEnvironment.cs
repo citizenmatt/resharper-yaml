@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace JetBrains.ReSharper.Plugins.Yaml.Tests
 {
     [ZoneDefinition]
-    public interface IYamlTestZone : ITestsZone, IRequire<PsiFeatureTestZone>
+    public interface IYamlTestZone : ITestsEnvZone, IRequire<PsiFeatureTestZone>
     {
     }
 
