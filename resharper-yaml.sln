@@ -4,9 +4,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yaml.resharper", "src\yaml.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yaml.rider", "src\yaml.rider.csproj", "{AFA61784-ADD8-485A-8832-4262705D030F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests.yaml.resharper", "test\src\tests.yaml.resharper.csproj", "{CF6386EA-6804-4052-AEC3-F7F47B822F9A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yaml.tests.resharper", "test\src\yaml.tests.resharper.csproj", "{CF6386EA-6804-4052-AEC3-F7F47B822F9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests.yaml.rider", "test\src\tests.yaml.rider.csproj", "{43563156-1D5D-4A02-806A-F4FE8B80F704}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yaml.tests.rider", "test\src\yaml.tests.rider.csproj", "{43563156-1D5D-4A02-806A-F4FE8B80F704}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
