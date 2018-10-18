@@ -15,6 +15,6 @@
     <PackageReference Include="JetBrains.ReSharper.SDK.Tests" Version="$(ReSharperSDKVersion)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\resharper-yaml.resharper.csproj" />
+    <ProjectReference Include="..\..\src\yaml.resharper.csproj" />
   </ItemGroup>
 </Project>
