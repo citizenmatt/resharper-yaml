@@ -51,6 +51,7 @@ namespace JetBrains.ReSharper.Plugins.Yaml.Tests.Psi.Parsing
     [TestCase("CommentLines")]
     [TestCase("MultiLineComments")]
     [TestCase("Comments")]
+    [TestCase("NotComments")]
 
     // 6.7 Separation Lines - describes whitespace (inc. comments) between items
     //     Might be required, depending on how we parse indentation and flow elements
