@@ -1,12 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yaml.resharper", "src\yaml.resharper.csproj", "{4DE4F948-B8C2-4053-905F-95A2E25C3278}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "resharper-yaml", "src\resharper-yaml.csproj", "{4DE4F948-B8C2-4053-905F-95A2E25C3278}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yaml.rider", "src\yaml.rider.csproj", "{AFA61784-ADD8-485A-8832-4262705D030F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "rider-yaml", "src\rider-yaml.csproj", "{AFA61784-ADD8-485A-8832-4262705D030F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yaml.tests.resharper", "test\src\yaml.tests.resharper.csproj", "{CF6386EA-6804-4052-AEC3-F7F47B822F9A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests.resharper-yaml", "test\src\tests.resharper-yaml.csproj", "{CF6386EA-6804-4052-AEC3-F7F47B822F9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yaml.tests.rider", "test\src\yaml.tests.rider.csproj", "{43563156-1D5D-4A02-806A-F4FE8B80F704}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests.rider-yaml", "test\src\tests.rider-yaml.csproj", "{43563156-1D5D-4A02-806A-F4FE8B80F704}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
