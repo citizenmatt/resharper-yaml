@@ -14,12 +14,12 @@
     <copyright>Copyright 2018 Matt Ellis, s.r.o</copyright>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <dependencies>
-      <dependency id="Wave" version="[12.0]" />
+      <dependency id="Wave" version="[182.0]" />
     </dependencies>
     <tags>resharper yaml</tags>
   </metadata>
   <files>
-    <file src="..\..\build\resharper-yaml.resharper\bin\Debug\net452\JetBrains.ReSharper.Plugins.Yaml.dll" target="lib" />
-    <file src="..\..\build\resharper-yaml.resharper\bin\Debug\net452\JetBrains.ReSharper.Plugins.Yaml.pdb" target="lib" />
+    <file src="..\..\build\resharper-yaml\bin\Release\net461\JetBrains.ReSharper.Plugins.Yaml.dll" target="lib" />
+    <file src="..\..\build\resharper-yaml\bin\Release\net461\JetBrains.ReSharper.Plugins.Yaml.pdb" target="lib" />
   </files>
 </package>
